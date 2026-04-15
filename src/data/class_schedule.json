@@ -1,0 +1,15 @@
+[
+    {
+        "section": "AI11",
+        "schedule": [
+            {
+                "day": "Monday",
+                "start": "7:30 AM",
+                "end": "9:00 AM"
+            }
+        ],
+        "subject": "IntroComp",
+        "room": "Comlab6",
+        "instructor": "Turco"
+    }
+]
