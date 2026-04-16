@@ -1,8 +1,7 @@
 import os
-from src.database import Database
 class ClassSchedule:
-    path = os.path.join(os.path.dirname(__file__), "../data/class_schedule.json")
-    db = Database(path)
+    def __init__(self,class_schedDB):
+        self.class_schedDB = class_schedDB
 
     def createClass(self, section, day, start, end, subject, room, instructor):
         classSchedModel = {
@@ -12,7 +11,7 @@ class ClassSchedule:
             "room": room,
             "instructor": instructor
         }
-        print(self.db.save(classSchedModel))
+        print(self.class_schedDB.save(classSchedModel))
 
 
 

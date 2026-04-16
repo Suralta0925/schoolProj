@@ -3,10 +3,11 @@ import uuid
 
 from src.database import Database
 class UserService:
-    path = os.path.join(os.path.dirname(__file__), "../data/user.json")
-    db = Database(path)
+    def __init__(self, userDB, class_schedDB):
+        self.userDB = userDB
+        self.class_schedDB = class_schedDB
     def create(self, username, password, section, role):
-        if self.db.findOne("username", username) is None:
+        if self.userDB.findOne("username", username) is None:
             userModel = {
                 "_id": str(uuid.uuid4()),
                 "username": username,
@@ -14,7 +15,7 @@ class UserService:
                 "section": section,
                 "role": role
             }
-            self.db.save(userModel)
+            self.userDB.save(userModel)
             print({"message": "User successfully created!"})
         print({"message": "User already exists!"})
 

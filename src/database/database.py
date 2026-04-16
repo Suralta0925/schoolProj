@@ -4,6 +4,7 @@ class Database:
         def __init__(self, __directory):
             self.__directory = __directory
 
+        # Read Data
         def load(self):
             try:
                 with open(self.__directory, "r") as infoFile:
@@ -13,12 +14,34 @@ class Database:
                     return data
             except (FileNotFoundError, json.JSONDecodeError):
                 return []
+
+        # appends new data to the current data
         def save(self, model):
             data = self.load()
             data.append(model)
             with open(self.__directory, "w") as infoFile:
                 json.dump(data, infoFile, indent=4)
             return self.load()
+
+        # overwrites the current data
+        def saveData(self, data):
+            with open(self.__directory, "w") as infoFile:
+                return json.dump(data,infoFile, indent=4)
+
+
+        #Update Data
+        def updateData(self, key, new_value):
+            data = self.load()
+            for info in data:
+                info[key] = new_value
+            self.saveData(data)
+
+        #Delete Data
+        def deleteData(self, key, value):
+            data = self.load()
+            newData = [info for info in data if info[key] != value]
+            self.saveData(newData)
+
 
         def findAll(self):
             return self.load()
