@@ -16,7 +16,7 @@ class Database:
                 return []
 
         # appends new data to the current data
-        def save(self, model):
+        def addData(self, model):
             data = self.load()
             data.append(model)
             with open(self.__directory, "w") as infoFile:
@@ -34,6 +34,7 @@ class Database:
             data = self.load()
             for info in data:
                 info[key] = new_value
+            print(data)
             self.saveData(data)
 
         #Delete Data
@@ -50,8 +51,8 @@ class Database:
             data = self.load()
             return [items for items in data if items.get[key] == value]
 
-        def findOne(self, key, value):
-            data = self.load()
+        def findOne(self, key, value, data=None):
+            if data is None: data = self.load()
             for items in data:
                 if items.get(key) == value:
                     return items

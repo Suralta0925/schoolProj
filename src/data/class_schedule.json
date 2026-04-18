@@ -1,15 +1,71 @@
 [
     {
-        "section": "AI11",
-        "schedule": [
+        "section": "AI12",
+        "subjects": [
             {
-                "day": "Monday",
-                "start": "7:30 AM",
-                "end": "9:00 AM"
+                "schedule": [
+                    {
+                        "day": "Monday",
+                        "start": "10:30 AM",
+                        "end": "12:00 PM"
+                    }
+                ],
+                "subject": "CompProg",
+                "room": "COMLAB6",
+                "instructor": "Dalan",
+                "assignments": [
+                    {
+                        "description": "Finish the Proposal",
+                        "deadline": "April 20, 2026"
+                    }
+                ]
+            },
+            {
+                "schedule": [
+                    {
+                        "day": "Wednesday",
+                        "start": "8:00 AM",
+                        "end": "10:00 AM"
+                    }
+                ],
+                "subject": "Multimedia",
+                "room": "Comlab3",
+                "instructor": "Tiquen",
+                "assignments": [
+                    {
+                        "description": "Finish Photoshop",
+                        "deadline": "April 29, 2026"
+                    }
+                ]
             }
-        ],
-        "subject": "IntroComp",
-        "room": "Comlab6",
-        "instructor": "Turco"
+        ]
+    },
+    {
+        "section": "AI11",
+        "subjects": [
+            {
+                "schedule": [
+                    {
+                        "day": "Monday",
+                        "start": "5",
+                        "end": "7"
+                    },
+                    {
+                        "day": "Friday",
+                        "start": "5:30",
+                        "end": "7"
+                    }
+                ],
+                "subject": "Accounting Principle",
+                "room": "Comlab1",
+                "instructor": "Aina",
+                "assignments": [
+                    {
+                        "description": "Balance Sheet",
+                        "deadline": "April 26, 2026"
+                    }
+                ]
+            }
+        ]
     }
 ]

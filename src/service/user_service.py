@@ -1,7 +1,4 @@
-import os
 import uuid
-
-from src.database import Database
 class UserService:
     def __init__(self, userDB, class_schedDB):
         self.userDB = userDB
@@ -15,7 +12,7 @@ class UserService:
                 "section": section,
                 "role": role
             }
-            self.userDB.save(userModel)
+            self.userDB.addData(userModel)
             print({"message": "User successfully created!"})
         print({"message": "User already exists!"})
 
