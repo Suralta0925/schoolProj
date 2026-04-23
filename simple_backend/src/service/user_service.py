@@ -1,0 +1,40 @@
+import secrets
+import uuid
+
+import jwt
+
+from .model import Res
+res = Res()
+
+
+
+
+
+
+class UserService:
+    def __init__(self, userDB, class_schedDB):
+        self.userDB = userDB
+        self.class_schedDB = class_schedDB
+
+
+    async def create(self, username, email, password):
+        if await self.userDB.findOne("username", username) is None or await self.userDB.findOne("email", email) is None:
+            userModel = {
+                "_id": str(uuid.uuid4()),
+                "username": username,
+                "email": email,
+                "password": password,
+                "section": ""
+            }
+            await self.userDB.addData(userModel)
+            return res.status(200).json({"message": "User successfully created!"})
+        return res.status(409).json({"message": "User already exists!"})
+
+    # async def validateUser(self, username, password):
+    #     data = await self.userDB.load()
+    #     for users in data:
+    #         if users["username"] == username or users["email"] == username:
+    #             if users["password"] == password:
+    #                 return sign(users)
+    #     return None
+

@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --background: #f4f4f5;
+  --foreground: #09090b;
+  --primary: #06b6d4;
+  --primary-foreground: #09090b;
+  --secondary: #fef08a;
+  --secondary-foreground: #09090b;
+  --muted: #e4e4e7;
+  --muted-foreground: #71717a;
+  --accent: #d946ef;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --border: #09090b;
+  --input: #ffffff;
+  --chart-1: #06b6d4;
+  --chart-2: #22c55e;
+  --chart-3: #eab308;
+  --chart-4: #d946ef;
+  --chart-5: #ef4444;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 0.5rem;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar { display: none; }
+
+/* ── PAGE ── */
+.action-page {
+  min-height: 100vh;
+  background-color: var(--background);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-sans);
+}
+
+@media (min-width: 768px) {
+  .action-page { padding: 3rem; }
+}
+
+/* ── HEADER ── */
+.action-header {
+  width: 100%;
+  max-width: 72rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--card);
+  padding: 0.5rem 1rem;
+  border: 4px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 4px 4px 0px 0px rgba(9,9,11,1);
+}
+
+.header-brand-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--primary);
+}
+
+.header-brand-name {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-user-info {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+@media (min-width: 768px) {
+  .header-user-info { display: flex; }
+}
+
+.header-user-name {
+  font-weight: 900;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.header-user-level {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--chart-2);
+}
+
+.avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  border: 4px solid var(--border);
+  box-shadow: 4px 4px 0px 0px rgba(9,9,11,1);
+  background-color: var(--chart-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── MAIN ── */
+.action-main {
+  width: 100%;
+  max-width: 64rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── HERO TEXT ── */
+.action-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.action-hero-title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem 0;
+  color: var(--foreground);
+}
+
+@media (min-width: 768px) {
+  .action-hero-title { font-size: 3.75rem; }
+}
+
+.action-hero-title-accent { color: var(--primary); }
+
+.action-hero-desc {
+  color: var(--muted-foreground);
+  font-weight: 700;
+  font-size: 1.125rem;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+/* ── CARDS GRID ── */
+.action-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .action-cards { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── SINGLE CARD ── */
+.action-card {
+  cursor: pointer;
+  background-color: var(--card);
+  border: 4px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 12px 12px 0px 0px rgba(9,9,11,1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.action-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 16px 16px 0px 0px rgba(9,9,11,1);
+}
+
+/* image circle */
+.card-img-ring {
+  width: 12rem;
+  height: 12rem;
+  margin-bottom: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px dashed;
+  transition: transform 0.2s ease;
+}
+
+.action-card:hover .card-img-ring {
+  transform: scale(1.1);
+}
+
+.card-img-ring--primary {
+  background-color: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.card-img-ring--accent {
+  background-color: rgba(217, 70, 239, 0.1);
+  border-color: rgba(217, 70, 239, 0.4);
+}
+
+.card-img {
+  width: 10rem;
+  height: 10rem;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0;
+  color: var(--foreground);
+}
+
+.card-desc {
+  color: var(--muted-foreground);
+  font-weight: 500;
+  margin: 0 0 2.5rem 0;
+  line-height: 1.625;
+}
+
+.card-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-input {
+  width: 100%;
+  background-color: var(--input);
+  border: 4px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 1.25rem;
+  text-align: center;
+  color: var(--foreground);
+  outline: none;
+  box-shadow: 4px 4px 0px 0px rgba(9,9,11,1);
+  transition: border-color 0.15s ease;
+}
+
+.card-input::placeholder {
+  color: rgba(113, 113, 122, 0.3);
+}
+
+.card-input:focus {
+  border-color: var(--primary);
+}
+
+/* card bottom area that pushes button to bottom */
+.card-bottom {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  padding-top: 3.75rem;
+}
+
+.card-btn {
+  width: 100%;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 1rem;
+  border: 4px solid var(--border);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 6px 6px 0px 0px rgba(9,9,11,1);
+}
+
+.card-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.card-btn--primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.card-btn--primary:hover {
+  background-color: rgba(6, 182, 212, 0.9);
+}
+
+.card-btn--accent {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.card-btn--accent:hover {
+  background-color: rgba(217, 70, 239, 0.9);
+}
+
+/* ── PROFILE TOOLTIP ── */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-tooltip {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 4px solid #09090b;
+  border-radius: 0.75rem;
+  box-shadow: 6px 6px 0px 0px rgba(9, 9, 11, 1);
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.tooltip-header {
+  padding: 0.875rem 1rem;
+  border-bottom: 3px solid #09090b;
+  background: #f4f4f5;
+}
+
+.tooltip-username {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: #09090b;
+  white-space: nowrap;
+}
+
+.tooltip-level {
+  margin: 2px 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--chart-2);
+}
+
+.tooltip-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--destructive);
+  transition: background 0.15s ease;
+}
+
+.tooltip-logout-btn:hover {
+  background: #fef2f2;
+}
+
+.tooltip-logout-icon {
+  font-size: 1.1rem;
+}

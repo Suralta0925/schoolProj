@@ -1,0 +1,48 @@
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+img{
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+.button {
+  background: red !important;
+}
+:root {
+        --background: #f4f4f5;
+        --foreground: #09090b;
+        --primary: #06b6d4;
+        --primary-foreground: #09090b;
+        --secondary: #fef08a;
+        --secondary-foreground: #09090b;
+        --muted: #e4e4e7;
+        --muted-foreground: #71717a;
+        --accent: #d946ef;
+        --accent-foreground: #ffffff;
+        --destructive: #ef4444;
+        --card: #ffffff;
+        --card-foreground: #09090b;
+        --popover: #ffffff;
+        --popover-foreground: #09090b;
+        --border: #09090b;
+        --input: #ffffff;
+        --ring: #09090b;
+        --chart-1: #06b6d4;
+        --chart-2: #22c55e;
+        --chart-3: #eab308;
+        --chart-4: #d946ef;
+        --chart-5: #ef4444;
+
+        --font-sans: "DM Sans";
+        --font-heading: "Space Grotesk";
+        --font-serif: "Playfair Display";
+        --font-mono: "JetBrains Mono";
+
+        --radius: 0.5rem;
+}

@@ -1,1 +1,0 @@
-from .assignment_router import router as assignment_router
