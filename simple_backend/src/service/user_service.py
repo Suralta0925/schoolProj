@@ -30,11 +30,10 @@ class UserService:
             return res.status(200).json({"message": "User successfully created!"})
         return res.status(409).json({"message": "User already exists!"})
 
-    # async def validateUser(self, username, password):
-    #     data = await self.userDB.load()
-    #     for users in data:
-    #         if users["username"] == username or users["email"] == username:
-    #             if users["password"] == password:
-    #                 return sign(users)
-    #     return None
-
+    async def setSection(self, user_id, section):
+        users = await self.userDB.load()
+        for user in users:
+            print(user["_id"], user_id)
+            if user["_id"] == user_id:
+                user["section"] = section
+                await self.userDB.saveData(users)

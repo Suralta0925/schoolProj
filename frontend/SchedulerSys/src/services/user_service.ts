@@ -1,4 +1,4 @@
-import { api } from "../config/config";
+import { userRoute } from "../config/config";
 
 type UserRegister = {
     username: string,
@@ -18,7 +18,7 @@ type ApiResponse<T> = {
 
 async function register(user : UserRegister): Promise<ApiResponse<UserRegister>>{
     try{
-        const res: Response = await fetch(`${api}/register`, {
+        const res: Response = await fetch(`${userRoute}/register`, {
             method: 'POST',
             headers:{
                 'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ async function register(user : UserRegister): Promise<ApiResponse<UserRegister>>
 
 async function login(user : UserLogin): Promise<ApiResponse<UserLogin>>{
     try{
-        const res: Response = await fetch(`${api}/login`, {
+        const res: Response = await fetch(`${userRoute}/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -78,7 +78,7 @@ async function login(user : UserLogin): Promise<ApiResponse<UserLogin>>{
 
 async function logout(){
     try{
-        const res: Response = await fetch(`${api}/logout`,{
+        const res: Response = await fetch(`${userRoute}/logout`,{
             method:"POST",
             credentials:"include"
         })

@@ -1,9 +1,9 @@
 [
     {
-        "_id": "a6c5073c-0e22-47d0-b8d6-4cd746857e29",
+        "_id": "d0a74d4f-b6e1-4e00-8ac3-f8680bff2e0b",
         "username": "Vince",
+        "email": "vinceiansuralta3@gmail.com",
         "password": "Suralta123",
-        "section": "Ai11",
-        "role": "Student"
+        "section": "AI13"
     }
 ]

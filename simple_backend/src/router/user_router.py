@@ -2,7 +2,6 @@
 import os
 
 
-
 from .jwtsign import *
 from fastapi import APIRouter, Response, Request, Header
 
@@ -19,7 +18,7 @@ schedPath = os.path.join(os.path.dirname(__file__), "../data/class_schedule.json
 schedDB = Database(schedPath)
 
 
-userPath = os.path.join(os.path.dirname(__file__), "../data/userTest.json")
+userPath = os.path.join(os.path.dirname(__file__), "../data/user.json")
 userDB = Database(userPath)
 user_service = UserService(userDB, schedDB)
 
@@ -82,9 +81,8 @@ async def logout(response: Response):
     )
     return {"message": "Successfully Logged out"}
 
-
-@UserRouter.get("/authtest")
-async def getInfo(request: Request, authorization: str = Header(None)):
+@UserRouter.get("/authorize")
+async def authorize(request: Request, authorization: str = Header(None)):
     token = request.cookies.get("access_token")
 
     if not token and authorization:
@@ -112,6 +110,5 @@ async def getInfo(request: Request, authorization: str = Header(None)):
         "email": user["email"],
         "section": user["section"]
     }
-
 
 

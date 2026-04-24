@@ -1,6 +1,15 @@
+import secrets
+import string
+
 from .model import Res
 from .model import Validation as v
 res = Res()
+
+def generate_code():
+    chars = string.ascii_uppercase + string.digits
+    code = ''.join(secrets.choice(chars) for _ in range(6))
+    return f"{code[:3]}-{code[3:]}"
+
 class ClassSchedule:
     def __init__(self,class_schedDB):
         self.class_schedDB = class_schedDB
@@ -10,17 +19,24 @@ class ClassSchedule:
 
     #Class Create, Read, Update, Delete operation
 
-    def createClass(self, section, user_uuid):
+    async def createClass(self, user_uuid, section,year, program):
         #checks if the section already exists if it exists terminate the creation of class
-        if  self.v.sectionExists(section): return res.status(409).json({"message": f"Class creation failed: Class {section} already exists!"})
+        if  await self.v.sectionExists(section): return None
         # if it does not exist create the class
         classSchedModel = {
-            "section": section,
             "admin": user_uuid,
+            "class_code": generate_code(),
+            "section": section,
+            "year": year,
+            "program": program,
             "subjects": []
         }
-        self.class_schedDB.addData(classSchedModel)
-        return res.status(200).json({"message": "Successfully created a class!"})
+        await self.class_schedDB.addData(classSchedModel)
+        return {
+            "status": 200,
+            "message": "Class created successfully!",
+            "classCode": classSchedModel["class_code"]
+        }
 
 
     def updateClass(self, section, updated_section):
@@ -82,8 +98,8 @@ class ClassSchedule:
                     "start": start,
                     "end": end
                 })
-                self.class_schedDB.saveData(data)
-                return res.status(200).json({"message": "Successfully added schedule!"})
+            self.class_schedDB.saveData(data)
+            return res.status(200).json({"message": "Successfully added schedule!"})
 
 
 

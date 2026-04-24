@@ -4,7 +4,7 @@ import Dashboard from './pages/HomePage/dashboard'
 import AdminDashboard from './pages/HomePage/Admindashboard'
 import { Routes, Route, Navigate, BrowserRouter } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { api } from './config/config'
+import { userRoute } from './config/config'
 import type { User } from './types/types'
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
 
  const checkAuth = async () => {
     try {
-      const res = await fetch(`${api}/authtest`, {
+      const res = await fetch(`${userRoute}/authorize`, {
         credentials: "include",
       });
 
@@ -40,12 +40,17 @@ function App() {
       <Routes>
         <Route
           path="/Scheduler"
-          element={!user ? <LoginForm onLoginSuccess={checkAuth} /> : <Navigate to="/Scheduler/join" />}
+          element={!user ? <LoginForm onLoginSuccess={checkAuth} /> : 
+          (!user.section) ? <Navigate to="/Scheduler/join" /> : <Navigate to={"/Scheduler/class"}/>}
         />
 
         <Route
           path="/Scheduler/join"
-          element={user ? <Join user={user} onLogoutSuccess={checkAuth}/> : <Navigate to="/Scheduler" />}
+          element={user && !user.section ? <Join user={user} authUser={checkAuth} /> :user && user.section ? <Navigate to={"/Scheduler/class"}/>:<Navigate to="/Scheduler" />}
+        />
+        <Route
+        path='/Scheduler/class'
+        element={user && user.section ? <Dashboard user={user} onLogoutSuccess={checkAuth}/> : <Navigate to={"/Scheduler/join"}/>}
         />
       </Routes>
     </BrowserRouter>

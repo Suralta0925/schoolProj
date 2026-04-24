@@ -23,11 +23,11 @@ class Database:
                 data = await self.load()
                 data.append(model)
                 with open(self.__directory, "w") as infoFile:
-                    json.dump(data, infoFile, indent=4)
+                    print(json.dump(data, infoFile, indent=4))
 
 
         # overwrites the current data
-        def saveData(self, data):
+        async def saveData(self, data):
             with open(self.__directory, "w") as infoFile:
                 return json.dump(data,infoFile, indent=4)
 

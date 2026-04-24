@@ -5,11 +5,11 @@ class Validation:
         self.db = db
 
 
-    def sectionExists(self,section: str):
+    async def sectionExists(self,section: str):
         """
         Returns whether section exists or not
         """
-        data = self.db.load()
+        data = await self.db.load()
         for classes in data:
             if section in classes["section"]:
                 return True

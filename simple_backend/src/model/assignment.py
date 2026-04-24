@@ -6,6 +6,8 @@ class CreateAssignment(BaseModel):
 
 class CreateClass(BaseModel):
     section: str
+    year: str
+    program: str
 
 class Schedule(BaseModel):
     day: str
@@ -26,3 +28,6 @@ class UserModelRegister(BaseModel):
 class UserModelLogin(BaseModel):
     username: str
     password: str
+
+class JoinRequest(BaseModel):
+    class_code: str

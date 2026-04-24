@@ -4,7 +4,7 @@ import asyncio
 from database import Database
 from service import UserService, ClassSchedule, SubjectModel, AssignmentModel
 
-userPath = os.path.join(os.path.dirname(__file__), "./data/userTest.json")
+userPath = os.path.join(os.path.dirname(__file__), "data/user.json")
 schedPath = os.path.join(os.path.dirname(__file__), "./data/class_schedule.json")
 
 userDB = Database(userPath)

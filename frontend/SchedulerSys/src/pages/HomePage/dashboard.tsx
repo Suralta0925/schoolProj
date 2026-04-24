@@ -4,11 +4,17 @@ import QuestCard, { type Quest, type QuestStatus } from "./cards/QuestCard";
 import ScheduleCard, {type ScheduleItem } from "./cards/ScheduleCard";
 import SchedulePage, { WEEKLY_SCHEDULE } from "./Schedule";
 import "./dashboard.css";
+import { useModal } from "../../hooks/useModal";
+import { logout } from "../../services/user_service";
+import logoutIcon from "../../assets/logout.svg"
+import type { User } from "../../types/types";
+import Modal from "../../components/Modal";
 
 const USERNAME = "Vince Ian Suralta";
 const LEVEL = "LVL 12 • ROOKIE";
-const AVATAR_URL =
-  "https://lh3.googleusercontent.com/a/ACg8ocLLVmJlLo1pOrU1fRWA21haB0rFDzB2RrZRKZAJeI175hJumcCt=s96-c";
+
+
+
 
 function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase();
@@ -132,11 +138,36 @@ function getSidebarSchedule(items: ScheduleItem[]): ScheduleItem[] {
 
 type FilterTab = "all" | "ongoing" | "finished";
 
-export default function Dashboard() {
+type DashboardProp = {
+  user: User;
+  onLogoutSuccess: () => Promise<void>;
+};
+
+export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
   const [quests, setQuests] = useState<Quest[]>(INITIAL_QUESTS);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
+  const modal = useModal()
+
+
+   const handleLogout = () => {
+    setTooltipOpen(false);
+    modal.show({
+      variant: "decision",
+      title: "Logout",
+      description: "Are you sure you want to logout?",
+      confirmLabel: "Logout!",
+      cancelLabel: "Cancel",
+      onCancel: () => modal.close(),
+      onConfirm: async () => {
+        modal.close();
+        await logout();
+        onLogoutSuccess();
+      },
+    });
+  };
+
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLImageElement>(null);
@@ -191,6 +222,18 @@ export default function Dashboard() {
 
   return (
     <div className="dash-page">
+      <Modal
+              open={modal.state.open}
+              variant={modal.state.variant}
+              title={modal.state.title}
+              description={modal.state.description}
+              confirmLabel={modal.state.confirmLabel}
+              cancelLabel={modal.state.cancelLabel}
+              onConfirm={modal.state.onConfirm}
+              onCancel={modal.state.onCancel}
+              okLabel={modal.state.okLabel}
+              onOk={modal.state.onOk}
+            />
       {/* ── HEADER ── */}
       <header className="dash-header">
         <div className="dash-header-inner">
@@ -215,26 +258,28 @@ export default function Dashboard() {
 
             {/* Profile with tooltip */}
             <div className="profile-wrapper">
-              <img
-                ref={avatarRef}
-                src={AVATAR_URL}
-                alt={USERNAME}
-                className="profile-avatar"
-                onClick={() => setTooltipOpen((p) => !p)}
-              />
-              {tooltipOpen && (
-                <div ref={tooltipRef} className="profile-tooltip">
-                  <div className="tooltip-header">
-                    <p className="tooltip-username">{USERNAME}</p>
-                    <p className="tooltip-level">{LEVEL}</p>
-                  </div>
-                  <button type="button" className="tooltip-logout-btn">
-                    <Icon icon="solar:logout-2-bold" className="tooltip-logout-icon" />
-                    Logout
-                  </button>
-                </div>
-              )}
+            <div
+              ref={avatarRef}
+              className="avatar"
+              onClick={() => setTooltipOpen((prev) => !prev)}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              {getInitial(user.username)}
             </div>
+
+            {tooltipOpen && (
+              <div ref={tooltipRef} className="profile-tooltip">
+                <div className="tooltip-header">
+                  <p className="tooltip-username">{user.username}</p>
+                  <p className="tooltip-level">{LEVEL}</p>
+                </div>
+                <button type="button" className="tooltip-logout-btn" onClick={handleLogout}>
+                  <img src={logoutIcon} className="tooltip-logout-icon" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
           </div>
         </div>
       </header>
