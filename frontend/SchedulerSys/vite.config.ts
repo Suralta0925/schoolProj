@@ -12,6 +12,9 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true
       }
-    }
+    },
+    allowedHosts:[
+      "maritime-phonebook-grower.ngrok-free.dev"
+    ]
   }
 })

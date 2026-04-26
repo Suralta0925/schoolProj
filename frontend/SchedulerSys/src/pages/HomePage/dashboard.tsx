@@ -1,20 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import QuestCard, { type Quest, type QuestStatus } from "./cards/QuestCard";
-import ScheduleCard, {type ScheduleItem } from "./cards/ScheduleCard";
+import ScheduleCard, { type ScheduleItem } from "./cards/ScheduleCard";
 import SchedulePage, { WEEKLY_SCHEDULE } from "./Schedule";
-import "./dashboard.css";
+import ClassmatesPage from "./classmates";
+import SettingsPage from "./settings";
+import ProfilePage from "./profile";
+import AppHeader from "../PageHeader/Appheader";
+import "./styles/dashboard.css";
 import { useModal } from "../../hooks/useModal";
 import { logout } from "../../services/user_service";
-import logoutIcon from "../../assets/logout.svg"
 import type { User } from "../../types/types";
 import Modal from "../../components/Modal";
 
-const USERNAME = "Vince Ian Suralta";
 const LEVEL = "LVL 12 • ROOKIE";
-
-
-
 
 function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase();
@@ -24,63 +23,62 @@ function getInitial(name: string) {
 const INITIAL_QUESTS: Quest[] = [
   {
     id: 1,
-    title: "Research: Fundamentals of Computing",
-    subject: "IT-101",
-    instructor: "Sir Debby Turco",
-    deadline: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-    status: "finished",
+    title: "HOPE: Push-ups",
+    subject: "pathfit",
+    instructor: "Mr. J. Nalam",
+    deadline: new Date(2026, 7, 18), // August 18, 2026
+    status: "ongoing"
   },
   {
     id: 2,
-    title: "Java Lab Exercise: Arrays",
-    subject: "CS-202",
-    instructor: "Sir Jeffrey Cinco",
-    deadline: new Date(Date.now() + 1000 * 60 * 110), // ~2 hours from now
-    status: "ongoing",
+    title: "Research: Fundamentals of Computing",
+    subject: "IT-101",
+    instructor: "Sir Ed Tiquen",
+    deadline: new Date(2026, 7, 22), // August 22, 2026
+    status: "finished"
   },
   {
     id: 3,
-    title: "Readings: Philippine History",
-    subject: "HIS-103",
-    instructor: "Mr. M. Lelina",
-    deadline: new Date(Date.now() + 1000 * 60 * 60 * 72), // 3 days from now
-    status: "ongoing",
+    title: "Study: Fundamentals of Accounting",
+    subject: "IT-102",
+    instructor: "Ms. Aina Mijares",
+    deadline: new Date(2026, 7, 25), // August 25, 2026
+    status: "ongoing"
   },
   {
     id: 4,
-    title: "Essay: Understanding the Self",
-    subject: "NSTP-101",
-    instructor: "Ms. Reyes",
-    deadline: new Date(Date.now() + 1000 * 60 * 60 * 5), // 5 hours from now
-    status: "ongoing",
+    title: "Research: Fundamentals of Computing",
+    subject: "IT-101",
+    instructor: "Sir Ed Tiquen",
+    deadline: new Date(2026, 7, 22),
+    status: "finished"
   },
   {
     id: 5,
-    title: "Math Problem Set #3",
-    subject: "MATH-201",
-    instructor: "Ms. Santos",
-    deadline: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
-    status: "finished",
+    title: "Research: Fundamentals of Computing",
+    subject: "IT-101",
+    instructor: "Sir Ed Tiquen",
+    deadline: new Date(2026, 7, 22),
+    status: "finished"
   },
   {
     id: 6,
-    title: "Group Project: Database Design",
-    subject: "IT-201",
-    instructor: "Sir Reyes",
-    deadline: new Date(Date.now() + 1000 * 60 * 60 * 120), // 5 days from now
-    status: "ongoing",
+    title: "Study: Fundamentals of Accounting",
+    subject: "IT-102",
+    instructor: "Ms. Aina Mijares",
+    deadline: new Date(2026, 7, 25),
+    status: "notice"
   },
   {
     id: 7,
-    title: "Quiz Review: Networking Basics",
-    subject: "NET-101",
-    instructor: "Sir Bautista",
-    deadline: new Date(Date.now() + 1000 * 60 * 25), // 25 min from now
-    status: "ongoing",
-  },
-];
+    title: "Research: Fundamentals of Computing",
+    subject: "IT-101",
+    instructor: "Sir Ed Tiquen",
+    deadline: new Date(2026, 7, 22),
+    status: "finished"
+  }
+]
 
-// Sort quests: ongoing by deadline asc, finished go last
 function sortQuests(quests: Quest[]): Quest[] {
   const ongoing = quests
     .filter((q) => q.status === "ongoing")
@@ -114,7 +112,6 @@ function isItemPast(item: ScheduleItem): boolean {
   return getCurrentMinutes() >= timeToMinutes(item.endTime);
 }
 
-// Get previous, current, and next schedule items for sidebar
 function getSidebarSchedule(items: ScheduleItem[]): ScheduleItem[] {
   if (!items?.length) return [];
   const now = getCurrentMinutes();
@@ -137,22 +134,20 @@ function getSidebarSchedule(items: ScheduleItem[]): ScheduleItem[] {
 }
 
 type FilterTab = "all" | "ongoing" | "finished";
+type ActivePage = "home" | "schedule" | "classmates" | "settings" | "profile";
 
 type DashboardProp = {
   user: User;
   onLogoutSuccess: () => Promise<void>;
 };
 
-export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
+export default function Dashboard({ user, onLogoutSuccess }: DashboardProp) {
   const [quests, setQuests] = useState<Quest[]>(INITIAL_QUESTS);
   const [filter, setFilter] = useState<FilterTab>("all");
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const [showSchedule, setShowSchedule] = useState(false);
-  const modal = useModal()
+  const [activePage, setActivePage] = useState<ActivePage>("home");
+  const modal = useModal();
 
-
-   const handleLogout = () => {
-    setTooltipOpen(false);
+  const handleLogout = () => {
     modal.show({
       variant: "decision",
       title: "Logout",
@@ -168,42 +163,21 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
     });
   };
 
-
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const avatarRef = useRef<HTMLImageElement>(null);
-
-  // Close tooltip on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        tooltipRef.current && !tooltipRef.current.contains(e.target as Node) &&
-        avatarRef.current && !avatarRef.current.contains(e.target as Node)
-      ) {
-        setTooltipOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Toggle quest status
   function handleToggleStatus(id: number) {
     setQuests((prev) =>
       prev.map((q) =>
         q.id === id
-          ? { ...q, status: q.status === "finished" ? "ongoing" : "finished" as QuestStatus }
+          ? { ...q, status: q.status === "finished" ? "ongoing" : ("finished" as QuestStatus) }
           : q
       )
     );
   }
 
-  // Progress bar logic
   const totalQuests = quests.length;
   const finishedQuests = quests.filter((q) => q.status === "finished").length;
   const progressPct = totalQuests > 0 ? Math.round((finishedQuests / totalQuests) * 100) : 0;
   const remaining = totalQuests - finishedQuests;
 
-  // Filtered + sorted quests
   const sorted = sortQuests(quests);
   const displayed = sorted.filter((q) => {
     if (filter === "ongoing") return q.status === "ongoing";
@@ -211,82 +185,87 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
     return true;
   });
 
-  // Today's schedule
   const todayKey = getTodayKey();
   const todaySchedule = WEEKLY_SCHEDULE[todayKey] ?? [];
   const sidebarItems = getSidebarSchedule(todaySchedule);
 
-  if (showSchedule) {
-    return <SchedulePage onBack={() => setShowSchedule(false)} />;
+  // ── Nav items for AppHeader ──
+  const navItems = [
+    { label: "Quests",     key: "home",       onClick: () => setActivePage("home"),       active: activePage === "home" },
+    { label: "Schedule",   key: "schedule",   onClick: () => setActivePage("schedule"),   active: activePage === "schedule" },
+    { label: "Classmates", key: "classmates", onClick: () => setActivePage("classmates"), active: activePage === "classmates" },
+    { label: "Settings",   key: "settings",   onClick: () => setActivePage("settings"),   active: activePage === "settings" },
+  ];
+
+  // ── Sub-pages ──
+  if (activePage === "schedule") {
+    return (
+      <div className="dash-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="dash-main">
+          <SchedulePage onBack={() => setActivePage("home")} />
+        </main>
+      </div>
+    );
   }
 
+  if (activePage === "classmates") {
+    return (
+      <div className="dash-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="dash-main">
+          <ClassmatesPage onBack={() => setActivePage("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (activePage === "settings") {
+    return (
+      <div className="dash-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="dash-main">
+          <SettingsPage onBack={() => setActivePage("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (activePage === "profile") {
+    return (
+      <div className="dash-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="dash-main">
+          <ProfilePage user={user} onBack={() => setActivePage("home")} onDeleteSuccess={onLogoutSuccess} />
+        </main>
+      </div>
+    );
+  }
+
+  // ── HOME ──
   return (
     <div className="dash-page">
       <Modal
-              open={modal.state.open}
-              variant={modal.state.variant}
-              title={modal.state.title}
-              description={modal.state.description}
-              confirmLabel={modal.state.confirmLabel}
-              cancelLabel={modal.state.cancelLabel}
-              onConfirm={modal.state.onConfirm}
-              onCancel={modal.state.onCancel}
-              okLabel={modal.state.okLabel}
-              onOk={modal.state.onOk}
-            />
-      {/* ── HEADER ── */}
-      <header className="dash-header">
-        <div className="dash-header-inner">
-          <div className="dash-header-left">
-            <div className="dash-brand">
-              <Icon icon="solar:gamepad-bold" className="dash-brand-icon" />
-              <span className="dash-brand-name">ClassQuest</span>
-            </div>
-            <nav className="dash-nav">
-              <a href="#" className="dash-nav-link dash-nav-link--active">Quests</a>
-              <a onClick={() => setShowSchedule(true)} className="dash-nav-link">Schedule</a>
-              <a href="#" className="dash-nav-link">Guilds</a>
-              <a href="#" className="dash-nav-link">Leaderboard</a>
-            </nav>
-          </div>
+        open={modal.state.open}
+        variant={modal.state.variant}
+        title={modal.state.title}
+        description={modal.state.description}
+        confirmLabel={modal.state.confirmLabel}
+        cancelLabel={modal.state.cancelLabel}
+        onConfirm={modal.state.onConfirm}
+        onCancel={modal.state.onCancel}
+        okLabel={modal.state.okLabel}
+        onOk={modal.state.onOk}
+      />
 
-          <div className="dash-header-right">
-            <button className="dash-notif-btn">
-              <Icon icon="solar:bell-bold" />
-              <span className="dash-notif-dot" />
-            </button>
+      <AppHeader
+        user={user}
+        navItems={navItems}
+        onLogout={handleLogout}
+        onProfileClick={() => setActivePage("profile")}
+      />
 
-            {/* Profile with tooltip */}
-            <div className="profile-wrapper">
-            <div
-              ref={avatarRef}
-              className="avatar"
-              onClick={() => setTooltipOpen((prev) => !prev)}
-              style={{ cursor: "pointer", userSelect: "none" }}
-            >
-              {getInitial(user.username)}
-            </div>
-
-            {tooltipOpen && (
-              <div ref={tooltipRef} className="profile-tooltip">
-                <div className="tooltip-header">
-                  <p className="tooltip-username">{user.username}</p>
-                  <p className="tooltip-level">{LEVEL}</p>
-                </div>
-                <button type="button" className="tooltip-logout-btn" onClick={handleLogout}>
-                  <img src={logoutIcon} className="tooltip-logout-icon" />
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ── MAIN ── */}
       <main className="dash-main">
-
         {/* ── PROFILE CARD ── */}
         <div className="profile-card">
           <div className="profile-card-user">
@@ -297,7 +276,7 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
               <div className="profile-card-level-badge">LVL 12</div>
             </div>
             <div>
-              <h2 className="profile-card-name">{USERNAME}</h2>
+              <h2 className="profile-card-name">{user.username}</h2>
               <p className="profile-card-subtitle">IT-101 Student Guild Member</p>
               <div className="profile-card-badges">
                 <span className="badge badge--secondary">MVP RANK #4</span>
@@ -329,7 +308,6 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
 
         {/* ── CONTENT GRID ── */}
         <div className="dash-content-grid">
-
           {/* ── QUESTS COLUMN ── */}
           <div className="dash-quests-col">
             <div className="filter-row">
@@ -347,6 +325,7 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
               </div>
             </div>
 
+            {/* Quests are read-only on student dashboard */}
             <div className="quest-list">
               {displayed.length === 0 ? (
                 <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted-foreground)", fontWeight: 700 }}>
@@ -382,8 +361,8 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
                   </div>
                 )}
               </div>
-              <button className="view-map-btn" onClick={() => setShowSchedule(true)}>
-                View Full Map
+              <button className="view-map-btn" onClick={() => setActivePage("schedule")}>
+                View Full Schedule
               </button>
             </div>
 
@@ -404,26 +383,38 @@ export default function Dashboard({user, onLogoutSuccess}: DashboardProp) {
         </div>
       </main>
 
-      {/* ── MOBILE NAV ── */}
+      {/* ── MOBILE BOTTOM NAV ── */}
       <div className="mobile-nav">
-        <button className="mobile-nav-btn mobile-nav-btn--active">
+        <button
+          className={`mobile-nav-btn ${activePage === "home" ? "mobile-nav-btn--active" : ""}`}
+          onClick={() => setActivePage("home")}
+        >
           <Icon icon="solar:home-2-bold" style={{ fontSize: "1.5rem" }} />
           <span>Quests</span>
         </button>
-        <button className="mobile-nav-btn" onClick={() => setShowSchedule(true)}>
+        <button
+          className={`mobile-nav-btn ${activePage === "schedule" ? "mobile-nav-btn--active" : ""}`}
+          onClick={() => setActivePage("schedule")}
+        >
           <Icon icon="solar:calendar-bold" style={{ fontSize: "1.5rem" }} />
-          <span>Map</span>
+          <span>Schedule</span>
         </button>
         <div className="mobile-nav-fab">
           <Icon icon="solar:add-circle-bold" style={{ fontSize: "1.875rem" }} />
         </div>
-        <button className="mobile-nav-btn">
-          <Icon icon="solar:ranking-bold" style={{ fontSize: "1.5rem" }} />
-          <span>Arena</span>
+        <button
+          className={`mobile-nav-btn ${activePage === "classmates" ? "mobile-nav-btn--active" : ""}`}
+          onClick={() => setActivePage("classmates")}
+        >
+          <Icon icon="solar:users-group-rounded-bold" style={{ fontSize: "1.5rem" }} />
+          <span>Class</span>
         </button>
-        <button className="mobile-nav-btn">
-          <Icon icon="solar:user-bold" style={{ fontSize: "1.5rem" }} />
-          <span>Profile</span>
+        <button
+          className={`mobile-nav-btn ${activePage === "settings" ? "mobile-nav-btn--active" : ""}`}
+          onClick={() => setActivePage("settings")}
+        >
+          <Icon icon="solar:settings-bold" style={{ fontSize: "1.5rem" }} />
+          <span>Settings</span>
         </button>
       </div>
     </div>

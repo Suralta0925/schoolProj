@@ -1,7 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { getColorForSubject } from "./cards/ScheduleCard";
-import "./Admindashboard.css"
+import ClassmatesPage from "./classmates";
+import SettingsPage from "./settings";
+import ProfilePage from "./profile";
+import AppHeader from "../PageHeader/Appheader";
+import "./styles/Admindashboard.css";
+import type { User } from "../../types/types";
+import { logout } from "../../services/user_service";
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -10,10 +16,10 @@ import "./Admindashboard.css"
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export interface DaySlot {
-  id: string;          // uuid-like local key
-  days: string[];      // e.g. ["Monday", "Wednesday"]
-  startTime: string;   // "HH:MM" 24h
-  endTime: string;     // "HH:MM" 24h
+  id: string;
+  days: string[];
+  startTime: string;
+  endTime: string;
   room: string;
 }
 
@@ -29,14 +35,20 @@ export interface AdminAssignment {
   title: string;
   subject: string;
   teacher: string;
-  deadline: string; // ISO date string "YYYY-MM-DDTHH:MM"
+  deadline: string; // ISO "YYYY-MM-DDTHH:MM"
 }
 
 // ─────────────────────────────────────────────
 // TODO: connect to database
 // Replace these initial values with API calls.
-// e.g. const [schedules, setSchedules] = useState<AdminSchedule[]>([]);
-// then: useEffect(() => { fetchSchedules().then(setSchedules); }, []);
+// GET /api/class/:classId/schedules  → AdminSchedule[]
+// GET /api/class/:classId/assignments → AdminAssignment[]
+//
+// Placeholder JSON shape for schedules:
+// [{ id, subject, teacher, slots: [{ id, days, startTime, endTime, room }] }]
+//
+// Placeholder JSON shape for assignments:
+// [{ id, title, subject, teacher, deadline }]
 // ─────────────────────────────────────────────
 
 const INITIAL_SCHEDULES: AdminSchedule[] = [
@@ -116,16 +128,11 @@ function getDeadlineLabel(isoStr: string): { label: string; urgency: "overdue" |
   const diff = new Date(isoStr).getTime() - Date.now();
   if (diff < 0) return { label: "OVERDUE", urgency: "overdue" };
   if (diff < 1000 * 60 * 60 * 24) return { label: `IN ${Math.ceil(diff / 3600000)}H`, urgency: "urgent" };
-  const days = Math.ceil(diff / 86400000);
   return {
     label: new Date(isoStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
     urgency: "normal",
   };
 }
-
-// ─────────────────────────────────────────────
-// EMPTY SLOT FACTORY
-// ─────────────────────────────────────────────
 
 function emptySlot(): DaySlot {
   return { id: uid(), days: [], startTime: "07:30", endTime: "09:00", room: "" };
@@ -135,31 +142,24 @@ function emptySlot(): DaySlot {
 // MODALS
 // ─────────────────────────────────────────────
 
-interface ScheduleModalProps {
+function ScheduleModal({
+  initial,
+  onSave,
+  onClose,
+}: {
   initial?: AdminSchedule | null;
   onSave: (s: AdminSchedule) => void;
   onClose: () => void;
-}
-
-function ScheduleModal({ initial, onSave, onClose }: ScheduleModalProps) {
+}) {
   const [subject, setSubject] = useState(initial?.subject ?? "");
   const [teacher, setTeacher] = useState(initial?.teacher ?? "");
-  const [slots, setSlots] = useState<DaySlot[]>(
-    initial?.slots?.length ? initial.slots : [emptySlot()]
-  );
+  const [slots, setSlots] = useState<DaySlot[]>(initial?.slots?.length ? initial.slots : [emptySlot()]);
 
-  function addSlot() {
-    setSlots((prev) => [...prev, emptySlot()]);
-  }
-
-  function removeSlot(id: string) {
-    setSlots((prev) => prev.filter((s) => s.id !== id));
-  }
-
+  function addSlot() { setSlots((prev) => [...prev, emptySlot()]); }
+  function removeSlot(id: string) { setSlots((prev) => prev.filter((s) => s.id !== id)); }
   function updateSlot(id: string, patch: Partial<DaySlot>) {
     setSlots((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   }
-
   function toggleDay(slotId: string, day: string) {
     setSlots((prev) =>
       prev.map((s) => {
@@ -174,12 +174,7 @@ function ScheduleModal({ initial, onSave, onClose }: ScheduleModalProps) {
     if (!subject.trim() || !teacher.trim()) return;
     const validSlots = slots.filter((s) => s.days.length > 0 && s.room.trim());
     if (!validSlots.length) return;
-    onSave({
-      id: initial?.id ?? uid(),
-      subject: subject.trim(),
-      teacher: teacher.trim(),
-      slots: validSlots,
-    });
+    onSave({ id: initial?.id ?? uid(), subject: subject.trim(), teacher: teacher.trim(), slots: validSlots });
   }
 
   return (
@@ -187,36 +182,20 @@ function ScheduleModal({ initial, onSave, onClose }: ScheduleModalProps) {
       <div className="modal-box">
         <div className="modal-header">
           <h2 className="modal-title">{initial ? "Edit Schedule" : "Add Schedule"}</h2>
-          <button className="modal-close-btn" onClick={onClose}>
-            {/* <Icon icon="solar:close-bold" /> */}
-            X
-          </button>
+          <button className="modal-close-btn" onClick={onClose}>✕</button>
         </div>
-
         <div className="modal-body">
-          {/* Subject & Teacher */}
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Subject Name</label>
-              <input
-                className="form-input"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="e.g. Java Programming Lab"
-              />
+              <input className="form-input" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Java Programming Lab" />
             </div>
             <div className="form-group">
               <label className="form-label">Subject Teacher</label>
-              <input
-                className="form-input"
-                value={teacher}
-                onChange={(e) => setTeacher(e.target.value)}
-                placeholder="e.g. Sir Jeffrey Cinco"
-              />
+              <input className="form-input" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g. Sir Jeffrey Cinco" />
             </div>
           </div>
 
-          {/* Day / Time Slots */}
           <div className="date-slots-section">
             <div className="date-slots-label-row">
               <span className="form-label">Day & Time Slots</span>
@@ -231,58 +210,32 @@ function ScheduleModal({ initial, onSave, onClose }: ScheduleModalProps) {
                 <div className="date-slot-header">
                   <span className="date-slot-num">Slot {idx + 1}</span>
                   {slots.length > 1 && (
-                    <button className="date-slot-remove-btn" onClick={() => removeSlot(slot.id)}>
-                      Remove
-                    </button>
+                    <button className="date-slot-remove-btn" onClick={() => removeSlot(slot.id)}>Remove</button>
                   )}
                 </div>
-
-                {/* Day picker */}
                 <div className="form-group">
                   <label className="form-label">Days</label>
                   <div className="date-slot-days">
                     {DAYS_OF_WEEK.map((day) => (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`day-chip ${slot.days.includes(day) ? "day-chip--selected" : ""}`}
-                        onClick={() => toggleDay(slot.id, day)}
-                      >
+                      <button key={day} type="button" className={`day-chip ${slot.days.includes(day) ? "day-chip--selected" : ""}`} onClick={() => toggleDay(slot.id, day)}>
                         {day.slice(0, 3)}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Room + time */}
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Room</label>
-                    <input
-                      className="form-input"
-                      value={slot.room}
-                      onChange={(e) => updateSlot(slot.id, { room: e.target.value })}
-                      placeholder="e.g. COMLAB2A"
-                    />
+                    <input className="form-input" value={slot.room} onChange={(e) => updateSlot(slot.id, { room: e.target.value })} placeholder="e.g. COMLAB2A" />
                   </div>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <div className="form-group" style={{ flex: 1 }}>
                       <label className="form-label">Start</label>
-                      <input
-                        type="time"
-                        className="form-input"
-                        value={slot.startTime}
-                        onChange={(e) => updateSlot(slot.id, { startTime: e.target.value })}
-                      />
+                      <input type="time" className="form-input" value={slot.startTime} onChange={(e) => updateSlot(slot.id, { startTime: e.target.value })} />
                     </div>
                     <div className="form-group" style={{ flex: 1 }}>
                       <label className="form-label">End</label>
-                      <input
-                        type="time"
-                        className="form-input"
-                        value={slot.endTime}
-                        onChange={(e) => updateSlot(slot.id, { endTime: e.target.value })}
-                      />
+                      <input type="time" className="form-input" value={slot.endTime} onChange={(e) => updateSlot(slot.id, { endTime: e.target.value })} />
                     </div>
                   </div>
                 </div>
@@ -290,27 +243,24 @@ function ScheduleModal({ initial, onSave, onClose }: ScheduleModalProps) {
             ))}
           </div>
         </div>
-
         <div className="modal-footer">
           <button className="modal-btn modal-btn--cancel" onClick={onClose}>Cancel</button>
-          <button className="modal-btn modal-btn--save" onClick={handleSave}>
-            {initial ? "Save Changes" : "Add Schedule"}
-          </button>
+          <button className="modal-btn modal-btn--save" onClick={handleSave}>{initial ? "Save Changes" : "Add Schedule"}</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-
-interface AssignmentModalProps {
+function AssignmentModal({
+  initial,
+  onSave,
+  onClose,
+}: {
   initial?: AdminAssignment | null;
   onSave: (a: AdminAssignment) => void;
   onClose: () => void;
-}
-
-function AssignmentModal({ initial, onSave, onClose }: AssignmentModalProps) {
+}) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [subject, setSubject] = useState(initial?.subject ?? "");
   const [teacher, setTeacher] = useState(initial?.teacher ?? "");
@@ -318,13 +268,7 @@ function AssignmentModal({ initial, onSave, onClose }: AssignmentModalProps) {
 
   function handleSave() {
     if (!title.trim() || !subject.trim() || !teacher.trim() || !deadline) return;
-    onSave({
-      id: initial?.id ?? uid(),
-      title: title.trim(),
-      subject: subject.trim(),
-      teacher: teacher.trim(),
-      deadline,
-    });
+    onSave({ id: initial?.id ?? uid(), title: title.trim(), subject: subject.trim(), teacher: teacher.trim(), deadline });
   }
 
   return (
@@ -332,74 +276,38 @@ function AssignmentModal({ initial, onSave, onClose }: AssignmentModalProps) {
       <div className="modal-box">
         <div className="modal-header">
           <h2 className="modal-title">{initial ? "Edit Assignment" : "Add Assignment"}</h2>
-          <button className="modal-close-btn" onClick={onClose}>
-            <Icon icon="solar:close-bold" />
-          </button>
+          <button className="modal-close-btn" onClick={onClose}>✕</button>
         </div>
-
         <div className="modal-body">
           <div className="form-group">
             <label className="form-label">Assignment Title</label>
-            <input
-              className="form-input"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Java Lab Exercise: Arrays"
-            />
+            <input className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Java Lab Exercise: Arrays" />
           </div>
-
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Subject</label>
-              <input
-                className="form-input"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="e.g. CS-202"
-              />
+              <input className="form-input" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. CS-202" />
             </div>
             <div className="form-group">
               <label className="form-label">Subject Teacher</label>
-              <input
-                className="form-input"
-                value={teacher}
-                onChange={(e) => setTeacher(e.target.value)}
-                placeholder="e.g. Sir Jeffrey Cinco"
-              />
+              <input className="form-input" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="e.g. Sir Jeffrey Cinco" />
             </div>
           </div>
-
           <div className="form-group">
             <label className="form-label">Deadline (Date & Time)</label>
-            <input
-              type="datetime-local"
-              className="form-input"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-            />
+            <input type="datetime-local" className="form-input" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
           </div>
         </div>
-
         <div className="modal-footer">
           <button className="modal-btn modal-btn--cancel" onClick={onClose}>Cancel</button>
-          <button className="modal-btn modal-btn--accent" onClick={handleSave}>
-            {initial ? "Save Changes" : "Add Assignment"}
-          </button>
+          <button className="modal-btn modal-btn--accent" onClick={handleSave}>{initial ? "Save Changes" : "Add Assignment"}</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-
-interface ConfirmDeleteProps {
-  label: string;
-  onConfirm: () => void;
-  onClose: () => void;
-}
-
-function ConfirmDeleteModal({ label, onConfirm, onClose }: ConfirmDeleteProps) {
+function ConfirmDeleteModal({ label, onConfirm, onClose }: { label: string; onConfirm: () => void; onClose: () => void }) {
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="confirm-modal-box">
@@ -420,8 +328,6 @@ function ConfirmDeleteModal({ label, onConfirm, onClose }: ConfirmDeleteProps) {
 // MAIN ADMIN DASHBOARD
 // ─────────────────────────────────────────────
 
-const ADMIN_NAME = "Admin User";
-
 type ModalState =
   | { type: "none" }
   | { type: "addSchedule" }
@@ -431,39 +337,28 @@ type ModalState =
   | { type: "editAssignment"; data: AdminAssignment }
   | { type: "deleteAssignment"; data: AdminAssignment };
 
-export default function AdminDashboard() {
+type ActivePage = "home" | "classmates" | "settings" | "profile";
+
+type AdminDashboardProps = {
+  user: User;
+  onLogoutSuccess: () => Promise<void>;
+};
+
+export default function AdminDashboard({ user, onLogoutSuccess }: AdminDashboardProps) {
   // ── TODO: connect to database ──
-  // Replace useState initial values with API-fetched data.
-  // Example pattern:
-  //   useEffect(() => {
-  //     scheduleApi.getAll().then(setSchedules);
-  //     assignmentApi.getAll().then(setAssignments);
-  //   }, []);
+  // Replace with API fetches:
+  // useEffect(() => {
+  //   fetch("/api/class/:id/schedules").then(r => r.json()).then(d => setSchedules(d.data));
+  //   fetch("/api/class/:id/assignments").then(r => r.json()).then(d => setAssignments(d.data));
+  // }, []);
   const [schedules, setSchedules] = useState<AdminSchedule[]>(INITIAL_SCHEDULES);
   const [assignments, setAssignments] = useState<AdminAssignment[]>(INITIAL_ASSIGNMENTS);
-
   const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [activePage, setActivePage] = useState<ActivePage>("home");
 
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const avatarRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleOutside(e: MouseEvent) {
-      if (
-        tooltipRef.current && !tooltipRef.current.contains(e.target as Node) &&
-        avatarRef.current && !avatarRef.current.contains(e.target as Node)
-      ) setTooltipOpen(false);
-    }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, []);
-
-  // ── TODO: connect to database ──
-  // Replace local setState calls with API mutations.
-  // e.g. scheduleApi.create(s).then((saved) => setSchedules(prev => [...prev, saved]));
-
+  // ── TODO: connect to database — replace with API calls ──
   function handleSaveSchedule(s: AdminSchedule) {
+    // TODO: POST /api/schedule or PATCH /api/schedule/:id
     setSchedules((prev) => {
       const exists = prev.find((x) => x.id === s.id);
       return exists ? prev.map((x) => (x.id === s.id ? s : x)) : [...prev, s];
@@ -472,15 +367,13 @@ export default function AdminDashboard() {
   }
 
   function handleDeleteSchedule(id: string) {
-    // TODO: connect to database — scheduleApi.delete(id)
+    // TODO: DELETE /api/schedule/:id
     setSchedules((prev) => prev.filter((s) => s.id !== id));
     setModal({ type: "none" });
   }
 
-  // ── TODO: connect to database ──
-  // e.g. assignmentApi.create(a).then((saved) => setAssignments(prev => [...prev, saved]));
-
   function handleSaveAssignment(a: AdminAssignment) {
+    // TODO: POST /api/assignment or PATCH /api/assignment/:id
     setAssignments((prev) => {
       const exists = prev.find((x) => x.id === a.id);
       return exists ? prev.map((x) => (x.id === a.id ? a : x)) : [...prev, a];
@@ -489,52 +382,61 @@ export default function AdminDashboard() {
   }
 
   function handleDeleteAssignment(id: string) {
-    // TODO: connect to database — assignmentApi.delete(id)
+    // TODO: DELETE /api/assignment/:id
     setAssignments((prev) => prev.filter((a) => a.id !== id));
     setModal({ type: "none" });
   }
 
+  const handleLogout = async () => {
+    await logout();
+    onLogoutSuccess();
+  };
+
+  const navItems = [
+    { label: "Dashboard",  key: "home",       onClick: () => setActivePage("home"),       active: activePage === "home" },
+    { label: "Classmates", key: "classmates", onClick: () => setActivePage("classmates"), active: activePage === "classmates" },
+    { label: "Settings",   key: "settings",   onClick: () => setActivePage("settings"),   active: activePage === "settings" },
+  ];
+
+  // ── Sub-pages ──
+  if (activePage === "classmates") {
+    return (
+      <div className="admin-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="admin-main">
+          <ClassmatesPage onBack={() => setActivePage("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (activePage === "settings") {
+    return (
+      <div className="admin-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="admin-main">
+          <SettingsPage onBack={() => setActivePage("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (activePage === "profile") {
+    return (
+      <div className="admin-page">
+        <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
+        <main className="admin-main">
+          <ProfilePage user={user} onBack={() => setActivePage("home")} onDeleteSuccess={onLogoutSuccess} />
+        </main>
+      </div>
+    );
+  }
+
+  // ── HOME ──
   return (
     <div className="admin-page">
-      {/* ── HEADER ── */}
-      <header className="admin-header">
-        <div className="admin-header-inner">
-          <div className="admin-brand">
-            <Icon icon="solar:gamepad-bold" className="admin-brand-icon" />
-            <div className="admin-brand-text">
-              <span className="admin-brand-name">ClassQuest</span>
-              <span className="admin-brand-role">Admin Panel</span>
-            </div>
-          </div>
+      <AppHeader user={user} navItems={navItems} onLogout={handleLogout} onProfileClick={() => setActivePage("profile")} />
 
-          <div className="admin-header-right">
-            {/* Profile tooltip */}
-            <div className="profile-wrapper">
-              <div
-                ref={avatarRef}
-                className="profile-avatar-sm"
-                onClick={() => setTooltipOpen((p) => !p)}
-              >
-                {ADMIN_NAME.charAt(0)}
-              </div>
-              {tooltipOpen && (
-                <div ref={tooltipRef} className="profile-tooltip">
-                  <div className="tooltip-header">
-                    <p className="tooltip-username">{ADMIN_NAME}</p>
-                    <p className="tooltip-role">Administrator</p>
-                  </div>
-                  <button type="button" className="tooltip-logout-btn">
-                    <Icon icon="solar:logout-2-bold" className="tooltip-logout-icon" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ── MAIN ── */}
       <main className="admin-main">
 
         {/* ── WELCOME BANNER ── */}
@@ -556,16 +458,18 @@ export default function AdminDashboard() {
         </div>
 
         {/* ── SCHEDULE SECTION ── */}
+        {/* NOTE: Add/Edit/Delete buttons are always visible on the admin panel.
+            On the student dashboard these buttons are hidden (not rendered).
+            TODO: If you want to conditionally show them based on API authorization,
+            check the user role from the API response and gate rendering:
+            { userRole === "admin" && <button>Add Schedule</button> } */}
         <section className="admin-section">
           <div className="admin-section-header">
             <h2 className="admin-section-title">
               <Icon icon="solar:calendar-bold" className="admin-section-title-icon" />
               Schedules
             </h2>
-            <button
-              className="admin-add-btn"
-              onClick={() => setModal({ type: "addSchedule" })}
-            >
+            <button className="admin-add-btn" onClick={() => setModal({ type: "addSchedule" })}>
               <Icon icon="solar:add-circle-bold" style={{ fontSize: "1rem" }} />
               Add Schedule
             </button>
@@ -582,11 +486,7 @@ export default function AdminDashboard() {
                 const color = getColorForSubject(sched.subject);
                 return (
                   <div key={sched.id} className="admin-schedule-card">
-                    {/* Color strip matching ScheduleCard colors */}
-                    <div
-                      className="admin-sched-color-strip"
-                      style={{ background: color.border }}
-                    />
+                    <div className="admin-sched-color-strip" style={{ background: color.border }} />
                     <div className="admin-sched-body">
                       <p className="admin-sched-subject">{sched.subject}</p>
                       <p className="admin-sched-teacher">{sched.teacher}</p>
@@ -598,28 +498,19 @@ export default function AdminDashboard() {
                                 <span key={d} className="admin-sched-slot-day">{d.slice(0, 3)}</span>
                               ))}
                             </div>
-                            <span className="admin-sched-slot-time">
-                              {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
-                            </span>
-                            <span style={{ color: "var(--muted-foreground)", fontSize: "0.65rem" }}>
-                              {slot.room}
-                            </span>
+                            <span className="admin-sched-slot-time">{formatTime(slot.startTime)} – {formatTime(slot.endTime)}</span>
+                            <span style={{ color: "var(--muted-foreground)", fontSize: "0.65rem" }}>{slot.room}</span>
                           </div>
                         ))}
                       </div>
                     </div>
+                    {/* TODO: Show Edit/Delete only if API authorizes CRUD access */}
                     <div className="admin-card-actions">
-                      <button
-                        className="admin-card-action-btn admin-card-action-btn--edit"
-                        onClick={() => setModal({ type: "editSchedule", data: sched })}
-                      >
+                      <button className="admin-card-action-btn admin-card-action-btn--edit" onClick={() => setModal({ type: "editSchedule", data: sched })}>
                         <Icon icon="solar:pen-bold" style={{ fontSize: "0.875rem" }} />
                         Edit
                       </button>
-                      <button
-                        className="admin-card-action-btn admin-card-action-btn--delete"
-                        onClick={() => setModal({ type: "deleteSchedule", data: sched })}
-                      >
+                      <button className="admin-card-action-btn admin-card-action-btn--delete" onClick={() => setModal({ type: "deleteSchedule", data: sched })}>
                         <Icon icon="solar:trash-bin-trash-bold" style={{ fontSize: "0.875rem" }} />
                         Delete
                       </button>
@@ -632,16 +523,15 @@ export default function AdminDashboard() {
         </section>
 
         {/* ── ASSIGNMENTS SECTION ── */}
+        {/* NOTE: Same as schedules — admin always sees CRUD.
+            TODO: Gate with API role check if needed. */}
         <section className="admin-section">
           <div className="admin-section-header">
             <h2 className="admin-section-title">
               <Icon icon="solar:document-add-bold" className="admin-section-title-icon" />
               Assignments
             </h2>
-            <button
-              className="admin-add-btn admin-add-btn--accent"
-              onClick={() => setModal({ type: "addAssignment" })}
-            >
+            <button className="admin-add-btn admin-add-btn--accent" onClick={() => setModal({ type: "addAssignment" })}>
               <Icon icon="solar:add-circle-bold" style={{ fontSize: "1rem" }} />
               Add Assignment
             </button>
@@ -669,33 +559,18 @@ export default function AdminDashboard() {
                     const { label, urgency } = getDeadlineLabel(asgn.deadline);
                     return (
                       <tr key={asgn.id}>
+                        <td><div className="admin-table-title">{asgn.title}</div></td>
+                        <td><div className="admin-table-title">{asgn.subject}</div></td>
+                        <td><div className="admin-table-sub">{asgn.teacher}</div></td>
+                        <td><span className={`deadline-badge deadline-badge--${urgency}`}>{label}</span></td>
                         <td>
-                          <div className="admin-table-title">{asgn.title}</div>
-                        </td>
-                        <td>
-                          <div className="admin-table-title">{asgn.subject}</div>
-                        </td>
-                        <td>
-                          <div className="admin-table-sub">{asgn.teacher}</div>
-                        </td>
-                        <td>
-                          <span className={`deadline-badge deadline-badge--${urgency}`}>
-                            {label}
-                          </span>
-                        </td>
-                        <td>
+                          {/* TODO: Gate these with API role check */}
                           <div className="admin-row-actions">
-                            <button
-                              className="admin-row-btn admin-row-btn--edit"
-                              onClick={() => setModal({ type: "editAssignment", data: asgn })}
-                            >
+                            <button className="admin-row-btn admin-row-btn--edit" onClick={() => setModal({ type: "editAssignment", data: asgn })}>
                               <Icon icon="solar:pen-bold" style={{ fontSize: "0.75rem" }} />
                               Edit
                             </button>
-                            <button
-                              className="admin-row-btn admin-row-btn--delete"
-                              onClick={() => setModal({ type: "deleteAssignment", data: asgn })}
-                            >
+                            <button className="admin-row-btn admin-row-btn--delete" onClick={() => setModal({ type: "deleteAssignment", data: asgn })}>
                               <Icon icon="solar:trash-bin-trash-bold" style={{ fontSize: "0.75rem" }} />
                               Delete
                             </button>
@@ -712,52 +587,12 @@ export default function AdminDashboard() {
       </main>
 
       {/* ── MODALS ── */}
-
-      {modal.type === "addSchedule" && (
-        <ScheduleModal
-          onSave={handleSaveSchedule}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
-
-      {modal.type === "editSchedule" && (
-        <ScheduleModal
-          initial={modal.data}
-          onSave={handleSaveSchedule}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
-
-      {modal.type === "deleteSchedule" && (
-        <ConfirmDeleteModal
-          label={modal.data.subject}
-          onConfirm={() => handleDeleteSchedule(modal.data.id)}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
-
-      {modal.type === "addAssignment" && (
-        <AssignmentModal
-          onSave={handleSaveAssignment}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
-
-      {modal.type === "editAssignment" && (
-        <AssignmentModal
-          initial={modal.data}
-          onSave={handleSaveAssignment}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
-
-      {modal.type === "deleteAssignment" && (
-        <ConfirmDeleteModal
-          label={modal.data.title}
-          onConfirm={() => handleDeleteAssignment(modal.data.id)}
-          onClose={() => setModal({ type: "none" })}
-        />
-      )}
+      {modal.type === "addSchedule" && <ScheduleModal onSave={handleSaveSchedule} onClose={() => setModal({ type: "none" })} />}
+      {modal.type === "editSchedule" && <ScheduleModal initial={modal.data} onSave={handleSaveSchedule} onClose={() => setModal({ type: "none" })} />}
+      {modal.type === "deleteSchedule" && <ConfirmDeleteModal label={modal.data.subject} onConfirm={() => handleDeleteSchedule(modal.data.id)} onClose={() => setModal({ type: "none" })} />}
+      {modal.type === "addAssignment" && <AssignmentModal onSave={handleSaveAssignment} onClose={() => setModal({ type: "none" })} />}
+      {modal.type === "editAssignment" && <AssignmentModal initial={modal.data} onSave={handleSaveAssignment} onClose={() => setModal({ type: "none" })} />}
+      {modal.type === "deleteAssignment" && <ConfirmDeleteModal label={modal.data.title} onConfirm={() => handleDeleteAssignment(modal.data.id)} onClose={() => setModal({ type: "none" })} />}
     </div>
   );
 }

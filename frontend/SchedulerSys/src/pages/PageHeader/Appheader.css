@@ -1,0 +1,322 @@
+/* ── APP HEADER ── */
+.app-header {
+  position: sticky;
+  top: 0;
+  /* z-index 60 > sched-header's 50 so the tooltip always renders on top */
+  z-index: 60;
+  background: rgba(244, 244, 245, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 4px solid var(--border);
+  padding: 0.875rem 1.5rem;
+  font-family: var(--font-sans);
+}
+
+/* ── MINIMAL MODE (join/landing page) ── */
+.app-header--minimal {
+  position: static;
+  width: 100%;          /* fill the centering flex parent in action-page */
+  background: transparent;
+  border-bottom: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  margin-bottom: 4rem;
+  z-index: auto;
+}
+
+/* ── INNER ROW ── */
+.app-header-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* In minimal mode the inner fills the full width */
+.app-header--minimal .app-header-inner {
+  max-width: none;
+  width: 100%;
+}
+
+/* ── LEFT ── */
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* ── BRAND ── */
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Card style used on the join/landing page */
+.app-brand--card {
+  background-color: var(--card);
+  padding: 0.5rem 1rem;
+  border: 4px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 4px 4px 0px 0px rgba(9, 9, 11, 1);
+}
+
+.app-brand-icon {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+.app-brand-name {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .app-brand-name { display: block; }
+}
+
+/* ── DESKTOP NAV — hidden on mobile, bottom nav handles it ── */
+.app-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .app-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+.app-nav-link {
+  font-weight: 900;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  color: var(--muted-foreground);
+  transition: color 0.15s ease;
+}
+
+.app-nav-link:hover { color: var(--foreground); }
+
+.app-nav-link--active {
+  color: var(--primary);
+  border-bottom: 4px solid var(--primary);
+  padding-bottom: 4px;
+}
+
+/* ── RIGHT ── */
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ── NOTIFICATION BUTTON ── */
+.app-notif-btn {
+  position: relative;
+  background: var(--card);
+  padding: 0.5rem;
+  border: 4px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 4px 4px 0px 0px rgba(9, 9, 11, 1);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-notif-btn:hover { transform: translateY(-2px); }
+
+.app-notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: var(--destructive);
+  border: 2px solid var(--border);
+  border-radius: 9999px;
+}
+
+/* ── ADMIN BADGE ── */
+.app-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--accent);
+  color: white;
+  border: 3px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0px 0px rgba(9, 9, 11, 1);
+}
+
+/* ── USER INFO (minimal / join mode only) ── */
+.app-user-info-minimal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.app-user-name {
+  font-weight: 900;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.app-user-level {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--chart-2);
+}
+
+/* ── AVATAR ── */
+.app-profile-wrapper {
+  position: relative;
+}
+
+.app-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  border: 4px solid var(--border);
+  box-shadow: 4px 4px 0px 0px rgba(9, 9, 11, 1);
+  background-color: var(--chart-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.app-avatar:hover { transform: translateY(-2px); }
+
+/* ── TOOLTIP ── */
+.app-profile-wrapper {
+  position: relative;
+}
+
+.app-tooltip {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  /* Must exceed app-header's z-index (60) within the same stacking context */
+  z-index: 9999;
+  background: #ffffff;
+  border: 4px solid #09090b;
+  border-radius: 0.75rem;
+  box-shadow: 6px 6px 0px 0px rgba(9, 9, 11, 1);
+  min-width: 200px;
+  overflow: hidden;
+  animation: tooltip-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tooltip-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.app-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 3px solid #09090b;
+  background: #f4f4f5;
+}
+
+.app-tooltip-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  border: 3px solid var(--border);
+  background-color: var(--chart-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.app-tooltip-username {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: #09090b;
+  white-space: nowrap;
+}
+
+.app-tooltip-level {
+  margin: 2px 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--chart-2);
+}
+
+/* ── TOOLTIP BUTTONS ── */
+.app-tooltip-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-top: 1px solid #e4e4e7;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.app-tooltip-btn:hover { background: var(--muted); }
+
+.app-tooltip-btn--logout { color: var(--destructive); }
+.app-tooltip-btn--logout:hover { background: #fef2f2; }
+
+.app-tooltip-btn--admin { color: var(--primary); }
+.app-tooltip-btn--admin:hover { background: rgba(6, 182, 212, 0.08); }
+
+.app-tooltip-btn--admin-on { color: var(--accent); }
+.app-tooltip-btn--admin-on:hover { background: rgba(217, 70, 239, 0.08); }
+
+.app-tooltip-btn-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+  flex-shrink: 0;
+}

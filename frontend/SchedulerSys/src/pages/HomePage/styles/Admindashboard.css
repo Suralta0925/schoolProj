@@ -1,5 +1,8 @@
 /* ── ADMIN DASHBOARD CSS ── */
 /* Shares font/color variables with the main dashboard */
+/* NOTE: Header styles (.admin-header, .admin-brand, etc.) are now handled
+   by the shared AppHeader component (AppHeader.tsx / AppHeader.css).
+   The styles below are kept only for the main content and CRUD UI. */
 
 /* ── PAGE ── */
 .admin-page {
@@ -9,7 +12,16 @@
   padding-bottom: 4rem;
 }
 
-/* ── HEADER ── */
+.admin-main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── HEADER (legacy — no longer used, kept for reference) ── */
 .admin-header {
   position: sticky;
   top: 0;

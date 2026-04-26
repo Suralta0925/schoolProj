@@ -1,40 +1,43 @@
 import { Icon } from "@iconify/react";
 import ScheduleCard, { type ScheduleItem } from "./cards/ScheduleCard";
-import "./Schedule.css";
+import "./styles/Schedule.css";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-// Full weekly schedule data
 export const WEEKLY_SCHEDULE: Record<string, ScheduleItem[]> = {
   Monday: [
-    { id: 1,  subject: "Introduction to Computing",   room: "COMLAB6A",  startTime: "07:30", endTime: "09:00" },
-    { id: 2,  subject: "Java Programming Lab",         room: "COMLAB2A",  startTime: "09:00", endTime: "10:30" },
-    { id: 3,  subject: "Understanding the Self",       room: "CON202A",   startTime: "13:00", endTime: "14:30" },
+    { id: 1, subject: "Introduction to Computing", room: "COMLAB6A", startTime: "07:30", endTime: "09:00" },
+    { id: 2, subject: "Computer Programming I - Java Lab", room: "COMLAB2A", startTime: "09:00", endTime: "10:30" },
+    { id: 3, subject: "Readings in Philippine History", room: "CON305A", startTime: "10:30", endTime: "12:00" },
+    { id: 4, subject: "Understanding the Self", room: "CON202A", startTime: "13:00", endTime: "14:30" },
+    { id: 5, subject: "IT101L(Information Technology Laboratory)", room: "COMLAB4A", startTime: "14:30", endTime: "16:00" }
   ],
   Tuesday: [
-    { id: 4,  subject: "Philippine History",           room: "HUM101A",   startTime: "08:00", endTime: "09:30" },
-    { id: 5,  subject: "Mathematics in the Modern World", room: "MATH201B", startTime: "10:00", endTime: "11:30" },
+    { id: 6, subject: "IT101(Information Technology)", room: "COMLAB5A", startTime: "08:00", endTime: "09:00" },
+    { id: 7, subject: "PATHFIT-1", room: "TBA", startTime: "09:00", endTime: "10:00" },
+    { id: 8, subject: "Accounting Principle", room: "COMLAB1A", startTime: "17:30", endTime: "19:00" }
   ],
   Wednesday: [
-    { id: 6,  subject: "Introduction to Computing",   room: "COMLAB6A",  startTime: "07:30", endTime: "09:00" },
-    { id: 7,  subject: "Java Programming Lab",         room: "COMLAB2A",  startTime: "09:00", endTime: "10:30" },
-    { id: 8,  subject: "Purposive Communication",      room: "ENG301C",   startTime: "14:00", endTime: "15:30" },
+    { id: 9, subject: "Computer Programming I - Java", room: "COMLAB2A", startTime: "10:00", endTime: "00:00" } // Note: "12:00 AM" converted to "00:00"
   ],
   Thursday: [
-    { id: 9,  subject: "Philippine History",           room: "HUM101A",   startTime: "08:00", endTime: "09:30" },
-    { id: 10, subject: "Mathematics in the Modern World", room: "MATH201B", startTime: "10:00", endTime: "11:30" },
-    { id: 11, subject: "Understanding the Self",       room: "CON202A",   startTime: "13:00", endTime: "14:30" },
-    { id: 9,  subject: "Philippine History",           room: "HUM101A",   startTime: "14:30", endTime: "15:30" },
-    { id: 10, subject: "Mathematics in the Modern World", room: "MATH201B", startTime: "15:30", endTime: "16:30" },
-    { id: 11, subject: "Understanding the Self",       room: "CON202A",   startTime: "17:00", endTime: "18:30" },
+    { id: 10, subject: "Introduction to Computing", room: "COMLAB6A", startTime: "07:30", endTime: "09:00" },
+    { id: 11, subject: "Computer Programming I - Java Lab", room: "COMLAB2A", startTime: "09:00", endTime: "10:30" },
+    { id: 12, subject: "Readings in Philippine History", room: "CON305A", startTime: "10:30", endTime: "12:00" },
+    { id: 13, subject: "Understanding the Self", room: "CON202A", startTime: "13:00", endTime: "14:30" },
+    { id: 14, subject: "IT101L(Information Technology Laboratory)", room: "COMLAB4A", startTime: "14:30", endTime: "16:00" }
   ],
   Friday: [
-    { id: 12, subject: "Introduction to Computing",   room: "COMLAB6A",  startTime: "07:30", endTime: "09:00" },
-    { id: 13, subject: "Purposive Communication",      room: "ENG301C",   startTime: "10:00", endTime: "11:30" },
+    { id: 15, subject: "IT101(Information Technology)", room: "COMLAB5A", startTime: "08:00", endTime: "09:00" },
+    { id: 16, subject: "PATHFIT-1", room: "TBA", startTime: "09:00", endTime: "10:00" },
+    { id: 17, subject: "Accounting Principle", room: "COMLAB1A", startTime: "17:30", endTime: "19:00" }
   ],
   Saturday: [
-    { id: 14, subject: "Mathematics in the Modern World", room: "MATH201B", startTime: "09:00", endTime: "12:00" },
+    { id: 18, subject: "NSTP - CWTS", room: "HUM12A", startTime: "08:00", endTime: "17:00" }
   ],
+  Sunday: [
+    { id: 19, subject: "NSTP - CWTS", room: "HUM12A", startTime: "08:00", endTime: "17:00" }
+  ]
 };
 
 function timeToMinutes(time: string): number {
@@ -63,32 +66,41 @@ function getTodayKey(): string {
 
 interface SchedulePageProps {
   onBack?: () => void;
+  /**
+   * When true, hides the SchedulePage's own sticky header.
+   * Used when embedded inside the Dashboard where AppHeader is already rendered.
+   * This also prevents the sched-header from competing with AppHeader's z-index
+   * and causing the tooltip to render behind it.
+   */
+  hideHeader?: boolean;
 }
 
-export default function SchedulePage({ onBack }: SchedulePageProps) {
+export default function SchedulePage({ onBack, hideHeader = false }: SchedulePageProps) {
   const todayKey = getTodayKey();
 
   return (
     <div className="sched-page">
-      {/* Header */}
-      <header className="sched-header">
-        <div className="sched-header-inner">
-          <div className="sched-header-left">
-            {onBack && (
-              <button className="sched-back-btn" onClick={onBack}>
-                <Icon icon="solar:arrow-left-bold" style={{ fontSize: "1.25rem" }} />
-              </button>
-            )}
-            <div className="sched-brand">
-              <Icon icon="solar:gamepad-bold" style={{ fontSize: "1.875rem", color: "var(--primary)" }} />
-              <span className="sched-brand-name">ClassQuest</span>
+      {/* Own header — hidden when embedded in Dashboard (AppHeader handles navigation) */}
+      {!hideHeader && (
+        <header className="sched-header">
+          <div className="sched-header-inner">
+            <div className="sched-header-left">
+              {onBack && (
+                <button className="sched-back-btn" onClick={onBack}>
+                  <Icon icon="solar:arrow-left-bold" style={{ fontSize: "1.25rem" }} />
+                </button>
+              )}
+              <div className="sched-brand">
+                <Icon icon="solar:gamepad-bold" style={{ fontSize: "1.875rem", color: "var(--primary)" }} />
+                <span className="sched-brand-name">ClassQuest</span>
+              </div>
             </div>
+            <h1 className="sched-page-title">
+              Full <span className="sched-page-title-accent">Schedule</span>
+            </h1>
           </div>
-          <h1 className="sched-page-title">
-            Full <span className="sched-page-title-accent">Map</span>
-          </h1>
-        </div>
-      </header>
+        </header>
+      )}
 
       <main className="sched-main">
         {/* Today highlight */}
@@ -118,7 +130,6 @@ export default function SchedulePage({ onBack }: SchedulePageProps) {
           )}
         </section>
 
-        {/* Divider */}
         <div className="sched-divider" />
 
         {/* Full week */}

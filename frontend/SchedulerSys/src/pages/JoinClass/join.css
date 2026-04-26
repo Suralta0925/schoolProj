@@ -37,6 +37,9 @@
 }
 *::-webkit-scrollbar { display: none; }
 
+/* NOTE: Header/avatar/tooltip styles are now in AppHeader.css.
+   join.css handles only the page layout, cards, and modal. */
+
 /* ── PAGE ── */
 .action-page {
   min-height: 100vh;

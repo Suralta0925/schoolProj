@@ -1,15 +1,13 @@
 import "./join.css";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import type { User } from "../../types/types";
 import { logout } from "../../services/user_service";
-import logoutIcon from "../../assets/logout.svg";
-import shield from "../../assets/shield.svg";
 import castle from "../../assets/castle.svg";
-import gamepad from "../../assets/gamepad.svg";
+import shield from "../../assets/shield.svg";
 import Modal from "../../components/Modal";
 import { useModal } from "../../hooks/useModal";
 import { classRoute } from "../../config/config";
-
+import AppHeader from "../PageHeader/Appheader";
 
 // ─────────────────────────────────────────────
 // PLACEHOLDER APIS — TODO: replace with real endpoints
@@ -26,7 +24,6 @@ async function createClass(payload: {
   year: string;
   program: string;
 }): Promise<{ status: number; message: string; classCode?: string }> {
-  // TODO: replace with actual API call
   const res = await fetch(`${classRoute}/create`, {
     method: "POST",
     credentials: "include",
@@ -39,31 +36,24 @@ async function createClass(payload: {
 /**
  * TODO: connect to database
  * POST /api/class/join
- * Body: { code: string, userId: user.id }
+ * Body: { class_code: string }
  * Returns: { status: number, message: string }
  */
 async function joinClass(payload: {
   code: string;
 }): Promise<{ status: number; message: string }> {
-  // TODO: replace with actual API call
   const res = await fetch(`${classRoute}/join`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      "class_code": payload.code
-    })
+    body: JSON.stringify({ class_code: payload.code }),
   });
-  const data = await res.json();
-  console.log(data)
-  return data
+  return res.json();
 }
 
 // ─────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────
-
-const LEVEL = "LVL 1 • ROOKIE";
 
 const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 
@@ -91,12 +81,8 @@ const PROGRAMS = [
 
 type JoinProp = {
   user: User;
-  authUser: () => Promise<void>
+  authUser: () => Promise<void>;
 };
-
-function getInitial(name: string) {
-  return name.trim().charAt(0).toUpperCase();
-}
 
 // ─────────────────────────────────────────────
 // CREATE CLASS MODAL
@@ -128,11 +114,7 @@ function CreateClassModal({ onClose, onResult }: CreateClassModalProps) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const result = await createClass({
-        section: section.trim(),
-        year,
-        program
-      });
+      const result = await createClass({ section: section.trim(), year, program });
       onClose();
       if (result.status === 200) {
         onResult(
@@ -156,23 +138,18 @@ function CreateClassModal({ onClose, onResult }: CreateClassModalProps) {
   return (
     <div className="cmodal-overlay">
       <div className="cmodal-box">
-        {/* Header */}
         <div className="cmodal-header">
           <div className="cmodal-header-icon">
             <img src={castle} alt="Create Class" className="cmodal-header-img" />
           </div>
           <div>
             <h2 className="cmodal-title">Create Class</h2>
-            <p className="cmodal-subtitle">Set up your classroom </p>
+            <p className="cmodal-subtitle">Set up your classroom</p>
           </div>
-          <button className="cmodal-close" onClick={onClose} type="button">
-            ✕
-          </button>
+          <button className="cmodal-close" onClick={onClose} type="button">✕</button>
         </div>
 
-        {/* Body */}
         <div className="cmodal-body">
-          {/* Section */}
           <div className="cmodal-field">
             <label className="cmodal-label">Section</label>
             <input
@@ -180,72 +157,42 @@ function CreateClassModal({ onClose, onResult }: CreateClassModalProps) {
               type="text"
               placeholder="e.g. BSIT-1A"
               value={section}
-              onChange={(e) => {
-                setSection(e.target.value);
-                setErrors((prev) => ({ ...prev, section: undefined }));
-              }}
+              onChange={(e) => { setSection(e.target.value); setErrors((p) => ({ ...p, section: undefined })); }}
             />
             {errors.section && <p className="cmodal-error-msg">{errors.section}</p>}
           </div>
 
-          {/* Year Level */}
           <div className="cmodal-field">
             <label className="cmodal-label">Year Level</label>
             <select
               className={`cmodal-select ${errors.year ? "cmodal-input--error" : ""}`}
               value={year}
-              onChange={(e) => {
-                setYear(e.target.value);
-                setErrors((prev) => ({ ...prev, year: undefined }));
-              }}
+              onChange={(e) => { setYear(e.target.value); setErrors((p) => ({ ...p, year: undefined })); }}
             >
               <option value="">Select year level...</option>
-              {YEAR_LEVELS.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
+              {YEAR_LEVELS.map((y) => <option key={y} value={y}>{y}</option>)}
             </select>
             {errors.year && <p className="cmodal-error-msg">{errors.year}</p>}
           </div>
 
-          {/* Program */}
           <div className="cmodal-field">
             <label className="cmodal-label">Program</label>
             <select
               className={`cmodal-select ${errors.program ? "cmodal-input--error" : ""}`}
               value={program}
-              onChange={(e) => {
-                setProgram(e.target.value);
-                setErrors((prev) => ({ ...prev, program: undefined }));
-              }}
+              onChange={(e) => { setProgram(e.target.value); setErrors((p) => ({ ...p, program: undefined })); }}
             >
               <option value="">Select program...</option>
-              {PROGRAMS.map((p) => (
-                <option key={p} value={p}>{p}</option>
-              ))}
+              {PROGRAMS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             {errors.program && <p className="cmodal-error-msg">{errors.program}</p>}
           </div>
         </div>
 
-        {/* Footer */}
         <div className="cmodal-footer">
-          <button className="cmodal-btn cmodal-btn--cancel" type="button" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            className="cmodal-btn cmodal-btn--create"
-            type="button"
-            onClick={handleCreate}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="cmodal-spinner" />
-                Creating...
-              </>
-            ) : (
-              <>Create Class ✦</>
-            )}
+          <button className="cmodal-btn cmodal-btn--cancel" type="button" onClick={onClose}>Cancel</button>
+          <button className="cmodal-btn cmodal-btn--create" type="button" onClick={handleCreate} disabled={loading}>
+            {loading ? (<><span className="cmodal-spinner" />Creating...</>) : <>Create Class ✦</>}
           </button>
         </div>
       </div>
@@ -258,18 +205,12 @@ function CreateClassModal({ onClose, onResult }: CreateClassModalProps) {
 // ─────────────────────────────────────────────
 
 export default function Join({ user, authUser }: JoinProp) {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [guildCode, setGuildCode] = useState("");
   const [joining, setJoining] = useState(false);
-
-  const tooltipRef = useRef(null);
-  const avatarRef = useRef(null);
   const modal = useModal();
 
-  // ── Logout ──
   const handleLogout = () => {
-    setTooltipOpen(false);
     modal.show({
       variant: "decision",
       title: "Logout",
@@ -285,30 +226,25 @@ export default function Join({ user, authUser }: JoinProp) {
     });
   };
 
-  // ── Join class ──
   const handleJoinClass = async () => {
     if (!guildCode.trim()) {
       modal.show({
         variant: "warning",
         title: "Missing Code",
-        description: "Please enter a guild code before joining.",
+        description: "Please enter a class code before joining.",
         onOk: () => modal.close(),
       });
       return;
     }
-
     setJoining(true);
     try {
-      const result = await joinClass({
-        code: guildCode.trim(),
-      });
-
+      const result = await joinClass({ code: guildCode.trim() });
       if (result.status === 200) {
         modal.show({
           variant: "success",
           title: "Class Joined!",
           description: result.message,
-          onOk: () => {modal.close();authUser(); },
+          onOk: () => { modal.close(); authUser(); },
         });
         setGuildCode("");
       } else {
@@ -316,7 +252,7 @@ export default function Join({ user, authUser }: JoinProp) {
           variant: "error",
           title: "Failed to Join",
           description: result.message,
-          onOk: () => {modal.close(); setGuildCode("")},
+          onOk: () => { modal.close(); setGuildCode(""); },
         });
       }
     } catch {
@@ -331,35 +267,12 @@ export default function Join({ user, authUser }: JoinProp) {
     }
   };
 
-  // ── Callback from CreateClassModal after API responds ──
   function handleCreateResult(variant: "success" | "error", title: string, message: string) {
-    modal.show({
-      variant,
-      title,
-      description: message,
-      onOk: () => modal.close(),
-    });
+    modal.show({ variant, title, description: message, onOk: () => modal.close() });
   }
-
-  // ── Close tooltip on outside click ──
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        tooltipRef.current &&
-        !(tooltipRef.current as any).contains(e.target) &&
-        avatarRef.current &&
-        !(avatarRef.current as any).contains(e.target)
-      ) {
-        setTooltipOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <div className="action-page">
-      {/* ── Universal Modal ── */}
       <Modal
         open={modal.state.open}
         variant={modal.state.variant}
@@ -373,7 +286,6 @@ export default function Join({ user, authUser }: JoinProp) {
         onOk={modal.state.onOk}
       />
 
-      {/* ── Create Class Modal ── */}
       {showCreateModal && (
         <CreateClassModal
           user={user}
@@ -382,44 +294,8 @@ export default function Join({ user, authUser }: JoinProp) {
         />
       )}
 
-      {/* ── HEADER ── */}
-      <header className="action-header">
-        <div className="header-brand">
-          <img src={gamepad} className="header-brand-icon" />
-          <span className="header-brand-name">ClassQuest</span>
-        </div>
-
-        <div className="header-user">
-          <div className="header-user-info">
-            <span className="header-user-name">{user.username}</span>
-            <span className="header-user-level">{LEVEL}</span>
-          </div>
-
-          <div className="profile-wrapper">
-            <div
-              ref={avatarRef}
-              className="avatar"
-              onClick={() => setTooltipOpen((prev) => !prev)}
-              style={{ cursor: "pointer", userSelect: "none" }}
-            >
-              {getInitial(user.username)}
-            </div>
-
-            {tooltipOpen && (
-              <div ref={tooltipRef} className="profile-tooltip">
-                <div className="tooltip-header">
-                  <p className="tooltip-username">{user.username}</p>
-                  <p className="tooltip-level">{LEVEL}</p>
-                </div>
-                <button type="button" className="tooltip-logout-btn" onClick={handleLogout}>
-                  <img src={logoutIcon} className="tooltip-logout-icon" />
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* ── Shared Header (minimal mode = no nav, branded card look) ── */}
+      <AppHeader user={user} onLogout={handleLogout} minimal />
 
       {/* ── MAIN ── */}
       <main className="action-main">
@@ -428,12 +304,12 @@ export default function Join({ user, authUser }: JoinProp) {
             Choose Your <span className="action-hero-title-accent">Path</span>
           </h1>
           <p className="action-hero-desc">
-            Are you joining an existing class or creating a new class?
+            Are you joining an existing class or creating a new one?
           </p>
         </div>
 
         <div className="action-cards">
-          {/* ── JOIN A GUILD ── */}
+          {/* Join */}
           <div className="action-card">
             <div className="card-img-ring card-img-ring--primary">
               <img src={shield} alt="Join a Class" className="card-img" />
@@ -453,18 +329,13 @@ export default function Join({ user, authUser }: JoinProp) {
                 onKeyDown={(e) => e.key === "Enter" && handleJoinClass()}
                 maxLength={20}
               />
-              <button
-                type="button"
-                className="card-btn card-btn--primary"
-                onClick={handleJoinClass}
-                disabled={joining}
-              >
+              <button type="button" className="card-btn card-btn--primary" onClick={handleJoinClass} disabled={joining}>
                 {joining ? "Joining..." : "Join a Class"}
               </button>
             </div>
           </div>
 
-          {/* ── Create Class ── */}
+          {/* Create */}
           <div className="action-card">
             <div className="card-img-ring card-img-ring--accent">
               <img src={castle} alt="Create Class" className="card-img" />
@@ -475,11 +346,7 @@ export default function Join({ user, authUser }: JoinProp) {
               students to victory.
             </p>
             <div className="card-bottom">
-              <button
-                type="button"
-                className="card-btn card-btn--accent"
-                onClick={() => setShowCreateModal(true)}
-              >
+              <button type="button" className="card-btn card-btn--accent" onClick={() => setShowCreateModal(true)}>
                 Create Class
               </button>
             </div>
