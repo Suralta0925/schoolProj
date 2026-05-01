@@ -4,6 +4,10 @@ import "./styles/Schedule.css";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+
+//FORTMAT
+//{SECTION: {DATE: [{}]}}
+
 export const WEEKLY_SCHEDULE: Record<string, ScheduleItem[]> = {
   Monday: [
     { id: 1, subject: "Introduction to Computing", room: "COMLAB6A", startTime: "07:30", endTime: "09:00" },

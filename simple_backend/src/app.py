@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .router import assignment_router, UserRouter
+from .router import assignment_router, UserRouter, subjectRouter
 
 
 
@@ -20,4 +20,5 @@ app.add_middleware(
     max_age=3600,  # Cache preflight for 1 hour
 )
 app.include_router(assignment_router, prefix="/api/v1/class")
+app.include_router(subjectRouter, prefix="/api/v1/class")
 app.include_router(UserRouter, prefix="/api/v1/user")

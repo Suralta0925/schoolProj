@@ -37,3 +37,5 @@ class UserService:
             if user["_id"] == user_id:
                 user["section"] = section
                 await self.userDB.saveData(users)
+                return "Success"
+        return None

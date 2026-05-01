@@ -1,3 +1,4 @@
+from datetime import datetime
 import secrets
 import string
 
@@ -25,7 +26,9 @@ class ClassSchedule:
         # if it does not exist create the class
         classSchedModel = {
             "admin": user_uuid,
-            "class_code": generate_code(),
+            "classCode": generate_code(),
+            "createdAt": datetime.now().strftime("%Y-%m-%d"),
+            "memberCount": 1,
             "section": section,
             "year": year,
             "program": program,
@@ -37,6 +40,20 @@ class ClassSchedule:
             "message": "Class created successfully!",
             "classCode": classSchedModel["class_code"]
         }
+
+    async def getClassInfo(self, section):
+        data = await self.class_schedDB.findOne("section",section)
+        if data:
+            return data
+        return None
+
+    async def addCount(self, section, num):
+        data = await self.class_schedDB.load()
+        for sect in data:
+            if sect["section"] == section:
+                sect["memberCount"] += num
+                print(data)
+                await self.class_schedDB.saveData(data)
 
 
     def updateClass(self, section, updated_section):

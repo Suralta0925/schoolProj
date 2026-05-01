@@ -14,11 +14,13 @@ class Schedule(BaseModel):
     start: str
     end: str
 
-class SubModel(BaseModel):
-    schedule: list[Schedule]
+class SubjectModel(BaseModel):
+    id: str
     subject: str
     room: str
-    instructor: str
+    day: str
+    startTime: str
+    endTime: str
 
 class UserModelRegister(BaseModel):
     username: str
@@ -31,3 +33,4 @@ class UserModelLogin(BaseModel):
 
 class JoinRequest(BaseModel):
     class_code: str
+

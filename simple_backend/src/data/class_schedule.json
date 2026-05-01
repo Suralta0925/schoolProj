@@ -70,7 +70,9 @@
     },
     {
         "admin": "d0a74d4f-b6e1-4e00-8ac3-f8680bff2e0b",
-        "class_code": "Q0G-P91",
+        "classCode": "Q0G-P91",
+        "createdAt": "2025-04-28",
+        "memberCount": 2,
         "section": "AI13",
         "year": "1st Year",
         "program": "Bachelor of Science in Information Technology",

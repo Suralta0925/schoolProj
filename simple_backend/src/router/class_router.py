@@ -3,10 +3,10 @@
 from fastapi import APIRouter, Depends
 import os
 
-from ..model.assignment import JoinRequest
+from ..model.Models import JoinRequest
 from ..service.model import Res
 from ..database import Database
-from ..service import UserService, ClassSchedule, SubjectModel, AssignmentModel
+from ..service import UserService, ClassSchedule, AssignmentModel
 from ..model import *
 from .user_router import authorize
 
@@ -40,12 +40,29 @@ async def createClass(class_model: CreateClass ,user_authorization: dict = Depen
 
 @router.post("/join")
 async def joinClass(data: JoinRequest, user_authorization: dict = Depends(authorize)):
-    result = await schedDB.findOne("class_code", data.class_code)
-    print("this works???")
+    result = await schedDB.findOne("classCode", data.class_code)
     if result:
         await user.setSection(user_authorization["id"], result["section"])
+        await schedule.addCount(result["section"], 1)
         return {"status": 200, "message": "Successfully joined a class"}
     return res.status(400).json({"message": "Please enter a valid class code"})
+
+@router.post("/leave")
+async def leaveClass(user_auth : dict = Depends(authorize)):
+    result = await user.setSection(user_auth["id"], "")
+    if result:
+        print(user_auth["section"])
+        await schedule.addCount(user_auth["section"], -1)
+        return {"status": 200, "message": "Successfully left the class!"}
+    return res.status(409).json({"message": "Invalid user!!!"})
+
+@router.post("/getClassInfo")
+async def getInfo(classInfo: dict = Depends(authorize)):
+    result = await schedule.getClassInfo(classInfo["section"])
+    if result:
+        return result
+    return res.status(404).json({"message": "Unable to find section!"})
+
 
 
 
@@ -54,9 +71,9 @@ async def joinClass(data: JoinRequest, user_authorization: dict = Depends(author
 
 #Subject http methods
 
-@router.post("/addSubject")
-def createSubject(section: str,model: SubModel):
-    return schedule.addSubjects(section, model.model_dump())
+# @router.post("/addSubject")
+# def createSubject(section: str,model: SubModel):
+#     return schedule.addSubjects(section, model.model_dump())
 
 @router.get("/assignments")
 def getAssignments(section: str):
