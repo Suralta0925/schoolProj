@@ -1,5 +1,5 @@
 import { classRoute } from "../config/config"
-import type { AdminSchedule } from "../pages/HomePage/dashboard"
+import type { AdminScheduleEntry } from "../pages/HomePage/dashboard"
 import {type ClassProfile } from "../pages/HomePage/settings"
 
 async function leaveClass(){
@@ -31,12 +31,21 @@ async function getClassInfo(): Promise<ClassProfile>{
     }
 }
 
-async function addSched(s: AdminSchedule){
+async function addSched(s: AdminScheduleEntry){
     try{
         const res = await fetch(`${classRoute}/addSchedule`,{
             method: "POST",
             credentials: "include",
-            body: JSON.stringify(s)
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                "id": s.id,
+                "subject": s.subject,
+                "teacher": s.teacher,
+                "room": s.room,
+                "day": s.day,
+                "startTime": s.startTime,
+                "endTime": s.endTime
+            })
         })
         if (!res) return
         const data = await res.json()
@@ -46,4 +55,18 @@ async function addSched(s: AdminSchedule){
     }
 }
 
-export {getClassInfo,leaveClass, addSched}
+async function getSched(){
+    try{
+        const res = await fetch(`${classRoute}/getSchedule`,{
+            method: "GET",
+            credentials: "include"
+        })
+        if (!res) return
+        const data = await res.json()
+        return data
+    }catch(err){
+        console.log(err)
+    }
+}
+
+export {getClassInfo,leaveClass, addSched, getSched}

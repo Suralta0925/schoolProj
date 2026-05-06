@@ -15,8 +15,9 @@ class Schedule(BaseModel):
     end: str
 
 class SubjectModel(BaseModel):
-    id: str
+    id: int
     subject: str
+    teacher: str
     room: str
     day: str
     startTime: str

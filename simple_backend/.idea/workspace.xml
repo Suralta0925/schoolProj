@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e72b96fe-3b55-4ee6-8108-4add562e6bf3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/Schedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/Schedule.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/classmates.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/classmates.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/profile.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/classmates.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/classmates.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/dashboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/dashboard.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/profile.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/settings.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/styles/settings.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/services/user_service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/services/user_service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,22 +30,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.class_schedule_service.executor": "Run",
-    "Python.database.executor": "Run",
-    "Python.main.executor": "Debug",
-    "Python.test.executor": "Run",
-    "Python.user_router.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/vince/SchedulerProject/simple_backend",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.class_schedule_service.executor&quot;: &quot;Run&quot;,
+    &quot;Python.database.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.user_router.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/vince/SchedulerProject/simple_backend&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/router/util" />

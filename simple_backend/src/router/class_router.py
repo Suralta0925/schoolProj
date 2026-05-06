@@ -70,11 +70,6 @@ async def getInfo(classInfo: dict = Depends(authorize)):
 
 
 #Subject http methods
-
-# @router.post("/addSubject")
-# def createSubject(section: str,model: SubModel):
-#     return schedule.addSubjects(section, model.model_dump())
-
 @router.get("/assignments")
 def getAssignments(section: str):
     return schedule.getFormattedAssignments(section)

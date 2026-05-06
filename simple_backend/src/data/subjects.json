@@ -1,0 +1,66 @@
+{
+    "AI13": {
+        "Tuesday": [
+            {
+                "id": 1,
+                "subject": "Multimedia",
+                "teacher": "Sir Ed Tiquen",
+                "room": "COMLAB3",
+                "day": "Tuesday",
+                "startTime": "07:30",
+                "endTime": "09:00"
+            }
+        ],
+        "Friday": [
+            {
+                "id": 1,
+                "subject": "Multimedia",
+                "teacher": "Sir Ed Tiquen",
+                "room": "COMLAB3",
+                "day": "Friday",
+                "startTime": "07:30",
+                "endTime": "09:00"
+            }
+        ],
+        "Wednesday": [
+            {
+                "id": 1778074323278,
+                "subject": "Computer Programming 2",
+                "teacher": "Sir Dalan",
+                "room": "COMLAB1",
+                "day": "Wednesday",
+                "startTime": "10:30",
+                "endTime": "12:00"
+            },
+            {
+                "id": 1778075464841,
+                "subject": "Multimedia",
+                "teacher": "Sir Ed",
+                "room": "COMLAB3",
+                "day": "Wednesday",
+                "startTime": "15:00",
+                "endTime": "17:00"
+            },
+            {
+                "id": 1778075878970,
+                "subject": "Computer Hardware and Maintenance",
+                "teacher": "Sir Debby Turco",
+                "room": "CON101",
+                "day": "Wednesday",
+                "startTime": "07:30",
+                "endTime": "09:00"
+            }
+        ],
+        "Monday": [
+            {
+                "id": 1778076058266,
+                "subject": "Computer Programming 2",
+                "teacher": "Sir Dalan",
+                "room": "COMLAB1",
+                "day": "Monday",
+                "startTime": "10:30",
+                "endTime": "12:00"
+            }
+        ]
+    }
+}

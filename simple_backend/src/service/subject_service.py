@@ -7,16 +7,18 @@ class Subject:
 
     #FORTMAT
     #{SECTION: {DATE: [{id,subject, room, startTime, endTime}]}}
-    async def addSchedule(self, section,day, _id, subject, room, startTime, endTime):
-        subjectData = self.subjects.load()
+    async def addSchedule(self, section,day, _id, subject, teacher, room, startTime, endTime):
+        subjectData = await self.subjects.load(isJson=True)
         model = {
             "id": _id,
             "subject": subject,
+            "teacher": teacher,
             "room": room,
             "day": day,
             "startTime": startTime,
             "endTime": endTime
         }
+        print(subjectData)
         if section not in subjectData:
             subjectData[section] = {}
 
@@ -27,7 +29,7 @@ class Subject:
             return res.status(409).json({"message": "Subject already exists!"})
 
         subjectData[section][day].append(model)
-        self.subjects.saveData(subjectData)
+        await self.subjects.saveData(subjectData)
         return res.status(200).json({"message": "Successfully added a subject!"})
 
     async def getSchedule(self, section):

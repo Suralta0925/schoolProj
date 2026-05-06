@@ -7,15 +7,16 @@ class Database:
             self.lock = asyncio.Lock()
 
         # Read Data
-        async def load(self):
+        async def load(self, isJson=False):
             try:
                 with open(self.__directory, "r") as infoFile:
                     data = json.load(infoFile)
                     if not data:
-                        data = []
+                        data = {} if isJson else []
+
                     return data
             except (FileNotFoundError, json.JSONDecodeError):
-                return []
+                return {} if isJson else []
 
         # appends new data to the current data
         async def addData(self, model):

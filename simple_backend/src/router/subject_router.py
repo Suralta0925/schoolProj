@@ -1,3 +1,4 @@
+import json
 import os
 
 from fastapi import APIRouter, Depends
@@ -27,7 +28,7 @@ async def getSched(section: dict = Depends(authorize)):
 async def addSched(sched: SubjectModel, section: dict = Depends(authorize)):
     section = section["section"]
     data = await subjectService.addSchedule(
-        section, sched.day, sched.id, sched.subject, sched.room, sched.startTime, sched.endTime
+        section, sched.day, sched.id, sched.subject,sched.teacher, sched.room, sched.startTime, sched.endTime
     )
     return data
 
