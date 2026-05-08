@@ -82,3 +82,4 @@ def createAssignments(section:str, subject: str, model: CreateAssignment):
 @router.get("/subjects")
 def getSubjects(section: str):
     return schedule.getSubjects(section)
+

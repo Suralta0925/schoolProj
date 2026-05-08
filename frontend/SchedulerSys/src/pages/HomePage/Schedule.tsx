@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import ScheduleCard, { type ScheduleItem } from "./cards/ScheduleCard";
+import { type AdminScheduleEntry } from "./dashboard";
 import "./styles/Schedule.css";
 import { getSched } from "../../services/class_service";
 import { useEffect, useState } from "react";
@@ -47,56 +48,34 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 // };
 
 
-let globalSchedule: Record<string, ScheduleItem[]> = {}
-let listeners: Function[] = []
-let isLoaded = false
+export type WEEKLY_SCHEDULE = Record<string, AdminScheduleEntry[]>
 
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useWeeklySchedule = () => {
-  const [schedule, setSchedule] = useState(globalSchedule)
-  const [loading, setLoading] = useState(!isLoaded)
+  const [loading, setLoading] = useState(true)
+  const [schedule, setSchedule] = useState<WEEKLY_SCHEDULE>({})
 
   useEffect(() => {
-    const listener = (data: typeof globalSchedule) => {
-      setSchedule(data)
-    }
+    const load = async () => {
+      try {
+        const data = await getSched()
 
-    listeners.push(listener)
 
-    if (!isLoaded) {
-      const load = async () => {
-        try {
-          const data = await getSched()
-          globalSchedule = data
-          isLoaded = true
-
-          listeners.forEach(l => l(globalSchedule))
-        } catch (err) {
-          console.error(err)
-        } finally {
-          setLoading(false)
-        }
+        setSchedule(data || {})
+      } catch (err) {
+        console.error(err)
+        setSchedule({})
+      } finally {
+        setLoading(false)
       }
-
-      load()
-    } else {
-      setLoading(false)
     }
 
-    return () => {
-      listeners = listeners.filter(l => l !== listener)
-    }
+    load()
   }, [])
 
   return { schedule, loading }
 }
-
-export const updateSchedule = (newData: typeof globalSchedule) => {
-  globalSchedule = newData
-  listeners.forEach(l => l(globalSchedule))
-}
-
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
@@ -170,9 +149,9 @@ export default function SchedulePage({ onBack, hideHeader = false }: SchedulePag
             <h2 className="sched-today-day">{todayKey}</h2>
           </div>
 
-          {schedule[todayKey] ? (
+          {schedule?.[todayKey] ? (
             <div className="sched-today-list">
-              {schedule[todayKey].map((item) => (
+              {schedule?.[todayKey].map((item) => (
                 <ScheduleCard
                   key={item.id}
                   item={item}
@@ -203,8 +182,8 @@ export default function SchedulePage({ onBack, hideHeader = false }: SchedulePag
                   {day === todayKey && <span className="sched-day-today-dot" />}
                 </div>
                 <div className="sched-day-items">
-                  {schedule[day]?.length ? (
-                    schedule[day].map((item) => (
+                  {schedule?.[day]?.length ? (
+                    schedule?.[day].map((item) => (
                       <ScheduleCard
                         key={item.id}
                         item={item}

@@ -3,10 +3,11 @@ import os
 
 from fastapi import APIRouter, Depends
 
+
 from .user_router import authorize
 from src import Database
 from ..service import Subject
-from ..model import SubjectModel
+from ..model import SubjectModel, delSubject
 
 
 subjectPath = os.path.join(os.path.dirname(__file__), "../data/subjects.json")
@@ -15,7 +16,7 @@ subjectService = Subject(subjectDB)
 
 subjectRouter = APIRouter()
 
-@subjectRouter.get("/getSchedule")
+@subjectRouter.get("/Schedule")
 async def getSched(section: dict = Depends(authorize)):
     section = section["section"]
     data = await subjectService.getSchedule(section)
@@ -24,7 +25,7 @@ async def getSched(section: dict = Depends(authorize)):
 
 #Revise
 #Format supposed to be [{ id, subject, teacher, slots:[{id,days,startTime,endTime,room}] }]
-@subjectRouter.post("/addSchedule")
+@subjectRouter.post("/Schedule")
 async def addSched(sched: SubjectModel, section: dict = Depends(authorize)):
     section = section["section"]
     data = await subjectService.addSchedule(
@@ -32,3 +33,6 @@ async def addSched(sched: SubjectModel, section: dict = Depends(authorize)):
     )
     return data
 
+@subjectRouter.delete("/Schedule")
+async def delSched(subject: delSubject , section: dict = Depends(authorize)):
+    await subjectService.deleteSchedule(subject.id,subject.day, section["section"] )

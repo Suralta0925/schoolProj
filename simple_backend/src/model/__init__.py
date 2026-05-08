@@ -1,1 +1,1 @@
-from .Models import (CreateAssignment, CreateClass, SubjectModel, UserModelRegister, UserModelLogin)
+from .Models import (CreateAssignment, CreateClass, SubjectModel, UserModelRegister, UserModelLogin, delSubject)

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import QuestCard, { type Quest, type QuestStatus } from "./cards/QuestCard";
 import ScheduleCard, { type ScheduleItem } from "./cards/ScheduleCard";
-import SchedulePage, { updateSchedule, useWeeklySchedule } from "./Schedule";
+import SchedulePage, { useWeeklySchedule } from "./Schedule";
 import ClassmatesPage from "./classmates";
 import SettingsPage from "./settings";
 import ProfilePage from "./profile";
@@ -13,7 +13,7 @@ import { logout } from "../../services/user_service";
 import type { User } from "../../types/types";
 import Modal from "../../components/Modal";
 import { getColorForSubject } from "./cards/ScheduleCard";
-import { addSched } from "../../services/class_service";
+import { addSched, delSched } from "../../services/class_service";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -23,8 +23,6 @@ const DAYS_OF_WEEK = [
   "Monday", "Tuesday", "Wednesday",
   "Thursday", "Friday", "Saturday", "Sunday",
 ];
-let globalSchedule: Record<string, ScheduleItem[]> = {}
-let listeners: Function[] = []
 /**
  * AdminScheduleEntry — one schedule session (one day, one time block).
  *
@@ -563,7 +561,7 @@ interface FabProps {
   onAction: (action: FabAction) => void;
 }
 
-function AdminFab({ context, onAction }: FabProps) {
+function AdminFab({ onAction }: FabProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -657,8 +655,9 @@ type DashboardProp = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: DashboardProp) {
+  const {schedule, loading} = useWeeklySchedule()
   const [quests,     setQuests]     = useState<Quest[]>(INITIAL_QUESTS);
-  const [schedules,  setSchedules]  = useState<AdminScheduleEntry[]>(INITIAL_SCHEDULES);
+  const schedules: AdminScheduleEntry[] = Object.values(schedule).flat()
   const [filter,     setFilter]     = useState<FilterTab>("all");
   const [activePage, setActivePage] = useState<ActivePage>("home");
   const [adminMode,  setAdminMode]  = useState(false);
@@ -666,9 +665,11 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
   
 
   const modal = useModal();
-  const {schedule, loading} = useWeeklySchedule()
+  
 
   if (loading) return (<p>Loading...</p>)
+  
+
 
   // Admin mode is only active when both the API confirms admin AND the user toggled it on
   const effectiveAdmin = isAdmin && adminMode;
@@ -677,6 +678,7 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
   const todayKey      = getTodayKey();
   const todaySchedule = schedule[todayKey] ?? [];
   const sidebarItems  = getSidebarSchedule(todaySchedule);
+  console.log([todayKey])
 
   // ── Quest list helpers ──
   const sorted         = sortQuests(quests);
@@ -783,16 +785,7 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
 
   /** Create a new schedule entry — calls addSchedule() in schedule_service.ts */
   async function addSchedule(entry: AdminScheduleEntry): Promise<void> {
-    const saved = await addSched(entry);
-     const updated = {
-    ...schedule,
-    [entry.day]: [
-      ...(schedule[entry.day] || []),
-      entry
-    ]
-  }
-
-  updateSchedule(updated)
+    await addSched(entry);
   }
 
   /** Update an existing schedule entry — calls updateSchedule() in schedule_service.ts */
@@ -803,9 +796,8 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
   }
 
   /** Delete a schedule entry — calls deleteSchedule() in schedule_service.ts */
-  async function deleteSchedule(id: number): Promise<void> {
-    // TODO: const res = await scheduleService.deleteSchedule(id);
-    // TODO: if (res.status !== 200) { showErrorModal(res.message); return; }
+  async function deleteSchedule(id: number, day: string): Promise<void> {
+    await delSched(id,day)
     setSchedules(prev => prev.filter(s => s.id !== id));
   }
 
@@ -821,7 +813,7 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
   }
 
   /** Shows confirmation modal then deletes */
-  function handleDeleteSchedule(id: number): void {
+  function handleDeleteSchedule(id: number, day: string): void {
     modal.show({
       variant: "decision",
       title: "Delete Schedule",
@@ -830,9 +822,15 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
       cancelLabel: "Cancel",
       onCancel: () => modal.close(),
       onConfirm: async () => {
-        await deleteSchedule(id);
-        modal.close();
-        setAdminModal({ type: "none" });
+        try{
+          await deleteSchedule(id, day);
+          setAdminModal({ type: "none" });
+        }catch(err){
+          console.log(err)
+        }finally{
+          modal.close();
+        }
+        
       },
     });
   }
@@ -1247,7 +1245,7 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
                   <button
                     key={entry.id}
                     className="sched-pick-btn sched-pick-btn--delete"
-                    onClick={() => handleDeleteSchedule(entry.id)}
+                    onClick={() => handleDeleteSchedule(entry.id, entry.day)}
                   >
                     <span className="sched-pick-dot" style={{ background: "var(--destructive)" }} />
                     <div>

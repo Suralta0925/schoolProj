@@ -38,3 +38,15 @@ class Subject:
         if not classSection:
             return res.status(404).json({"message": "Section does not exists!"})
         return classSection
+
+    async def deleteSchedule(self, subjectID, day, section):
+        scheduleData = await self.subjects.load()
+        scheduleData[section][day] = [
+            subject
+            for subject in scheduleData[section][day]
+            if subject["id"] != subjectID
+            ]
+        await self.subjects.saveData(scheduleData)
+
+
+

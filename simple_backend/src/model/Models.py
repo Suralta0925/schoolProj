@@ -23,6 +23,10 @@ class SubjectModel(BaseModel):
     startTime: str
     endTime: str
 
+class delSubject(BaseModel):
+    id: int
+    day: str
+
 class UserModelRegister(BaseModel):
     username: str
     email: str

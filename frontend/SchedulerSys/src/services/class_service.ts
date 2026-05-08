@@ -33,7 +33,7 @@ async function getClassInfo(): Promise<ClassProfile>{
 
 async function addSched(s: AdminScheduleEntry){
     try{
-        const res = await fetch(`${classRoute}/addSchedule`,{
+        const res = await fetch(`${classRoute}/Schedule`,{
             method: "POST",
             credentials: "include",
             headers: {"Content-Type": "application/json"},
@@ -47,7 +47,7 @@ async function addSched(s: AdminScheduleEntry){
                 "endTime": s.endTime
             })
         })
-        if (!res) return
+        if (!res.ok) return
         const data = await res.json()
         return data
     }catch(err){
@@ -57,11 +57,11 @@ async function addSched(s: AdminScheduleEntry){
 
 async function getSched(){
     try{
-        const res = await fetch(`${classRoute}/getSchedule`,{
+        const res = await fetch(`${classRoute}/Schedule`,{
             method: "GET",
             credentials: "include"
         })
-        if (!res) return
+        if (!res.ok) return
         const data = await res.json()
         return data
     }catch(err){
@@ -69,4 +69,23 @@ async function getSched(){
     }
 }
 
-export {getClassInfo,leaveClass, addSched, getSched}
+async function delSched(id: number, day: string){
+    try{
+        const res = await fetch(`${classRoute}/Schedule`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                "id": id,
+                "day": day
+            })
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        return data
+    }catch(err){
+        console.log(err)
+    }
+}
+
+export {getClassInfo,leaveClass, addSched, getSched, delSched}

@@ -1,16 +1,6 @@
 {
     "AI13": {
-        "Tuesday": [
-            {
-                "id": 1,
-                "subject": "Multimedia",
-                "teacher": "Sir Ed Tiquen",
-                "room": "COMLAB3",
-                "day": "Tuesday",
-                "startTime": "07:30",
-                "endTime": "09:00"
-            }
-        ],
+        "Tuesday": [],
         "Friday": [
             {
                 "id": 1,
@@ -60,6 +50,17 @@
                 "day": "Monday",
                 "startTime": "10:30",
                 "endTime": "12:00"
+            }
+        ],
+        "Thursday": [
+            {
+                "id": 1778117274779,
+                "subject": "Computer Hardware and Maintenance",
+                "teacher": "Sir Debby Turco",
+                "room": "CON101",
+                "day": "Thursday",
+                "startTime": "09:00",
+                "endTime": "10:30"
             }
         ]
     }
