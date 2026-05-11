@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e72b96fe-3b55-4ee6-8108-4add562e6bf3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/Schedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/Schedule.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/pages/HomePage/dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/SchedulerSys/src/services/class_service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/SchedulerSys/src/services/class_service.ts" afterDir="false" />
-    </list>
+    <list default="true" id="e72b96fe-3b55-4ee6-8108-4add562e6bf3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

@@ -20,7 +20,7 @@ schedDB = Database(schedPath)
 res = Res()
 
 user = UserService(userDB, schedDB)
-schedule = ClassSchedule(schedDB)
+schedule = ClassSchedule(schedDB, userDB)
 
 router = APIRouter()
 
@@ -62,6 +62,11 @@ async def getInfo(classInfo: dict = Depends(authorize)):
     if result:
         return result
     return res.status(404).json({"message": "Unable to find section!"})
+
+@router.get("/getStudents")
+async def getStudent(section: dict = Depends(authorize)):
+    data = await schedule.ClassUsers(section["section"])
+    return data
 
 
 

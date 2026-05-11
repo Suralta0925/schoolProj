@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import "./styles/classmates.css";
+import { classRoute } from "../../config/config";
 
 export interface Classmate {
   id: string;
@@ -12,14 +14,7 @@ export interface Classmate {
 // TODO: Replace with API call
 // GET /api/class/:classId/members
 // Returns: { status: number; data: Classmate[] }
-const PLACEHOLDER_CLASSMATES: Classmate[] = [
-  { id: "u-1", username: "Vince Ian Suralta",  email: "vince@school.edu",  role: "Class President", xp: 850, level: 12 },
-  { id: "u-2", username: "Maria Santos",        email: "maria@school.edu",  role: "Member",           xp: 420, level: 7  },
-  { id: "u-3", username: "James Dela Cruz",     email: "james@school.edu",  role: "Member",           xp: 670, level: 10 },
-  { id: "u-4", username: "Ana Reyes",           email: "ana@school.edu",    role: "Member",           xp: 310, level: 5  },
-  { id: "u-5", username: "Kevin Lim",           email: "kevin@school.edu",  role: "Member",           xp: 540, level: 9  },
-  { id: "u-6", username: "Sofia Garcia",        email: "sofia@school.edu",  role: "Member",           xp: 190, level: 3  },
-];
+
 
 function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase();
@@ -57,7 +52,39 @@ function ClassmateCard({ c }: { c: Classmate }) {
 
 export default function ClassmatesPage({ onBack }: { onBack?: () => void }) {
   // TODO: fetch classmates from API
-  const classmates = PLACEHOLDER_CLASSMATES;
+   const [classmates, setClassmates] = useState<Classmate[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchClassmates() {
+      try {
+        const response = await fetch(`${classRoute}/getStudents`, {
+          credentials: "include"
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch classmates");
+        }
+
+        const data = await response.json();
+
+        setClassmates(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchClassmates();
+  }, []);
+
+   if (loading) {
+    return <p>Loading classmates...</p>;
+  }
+
+
+
   return (
     <div className="classmates-page">
       <div className="subpage-topbar">

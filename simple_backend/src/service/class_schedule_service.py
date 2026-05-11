@@ -12,8 +12,9 @@ def generate_code():
     return f"{code[:3]}-{code[3:]}"
 
 class ClassSchedule:
-    def __init__(self,class_schedDB):
+    def __init__(self,class_schedDB, userDB):
         self.class_schedDB = class_schedDB
+        self.userDB = userDB
         self.v = v(class_schedDB)
 
 
@@ -117,13 +118,7 @@ class ClassSchedule:
                 })
             self.class_schedDB.saveData(data)
             return res.status(200).json({"message": "Successfully added schedule!"})
-
-
-
-
-
-
-
+        return None
 
     def addAssignment(self, section:str, _subject:str, assignment_model: object) -> str:
         data = self.class_schedDB.load()
@@ -163,3 +158,8 @@ class ClassSchedule:
         return res.status(200).json(formattedSubject)
 
 
+    async def ClassUsers(self, section):
+        userData = await self.userDB.load()
+        filteredData = [{key: value for key, value in user.items() if key not in ["password", "section"]}
+                        for user in userData if user["section"] == section]
+        return filteredData
