@@ -88,4 +88,28 @@ async function delSched(id: number, day: string){
     }
 }
 
-export {getClassInfo,leaveClass, addSched, getSched, delSched}
+async function editSched(s: AdminScheduleEntry){
+    try{
+        const res = await fetch(`${classRoute}/Schedule`,{
+            method: "PUT",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                "id": s.id,
+                "subject": s.subject,
+                "teacher": s.teacher,
+                "room": s.room,
+                "day": s.day,
+                "startTime": s.startTime,
+                "endTime": s.endTime
+            })
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        return data
+    }catch(err){
+        console.log(err)
+    }
+}
+
+export {getClassInfo,leaveClass, addSched, getSched, delSched, editSched}

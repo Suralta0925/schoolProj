@@ -36,3 +36,7 @@ async def addSched(sched: SubjectModel, section: dict = Depends(authorize)):
 @subjectRouter.delete("/Schedule")
 async def delSched(subject: delSubject , section: dict = Depends(authorize)):
     await subjectService.deleteSchedule(subject.id,subject.day, section["section"] )
+
+@subjectRouter.put("/Schedule")
+async def updSchedule(schedule: SubjectModel, sub : dict = Depends(authorize)):
+    await subjectService.editSchedule(schedule, sub["section"])

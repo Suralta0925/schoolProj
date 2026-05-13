@@ -1,3 +1,4 @@
+from src.model import SubjectModel
 from .model import Res
 res = Res()
 class Subject:
@@ -47,6 +48,20 @@ class Subject:
             if subject["id"] != subjectID
             ]
         await self.subjects.saveData(scheduleData)
+
+
+    async def editSchedule(self, subject: SubjectModel, section):
+        scheduleData = await self.subjects.load()
+        for schedules in scheduleData[section][subject.day]:
+            if schedules["id"] == subject.id:
+                schedules["subject"] = subject.subject
+                schedules["teacher"] = subject.teacher
+                schedules["room"] = subject.room
+                schedules["day"] = subject.day
+                schedules["startTime"] = subject.startTime
+                schedules["endTime"] = subject.endTime
+        await self.subjects.saveData(scheduleData)
+
 
 
 

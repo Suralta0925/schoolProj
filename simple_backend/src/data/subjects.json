@@ -50,6 +50,15 @@
                 "day": "Monday",
                 "startTime": "10:30",
                 "endTime": "12:00"
+            },
+            {
+                "id": 1778706714841,
+                "subject": "Discrete Mathematics",
+                "teacher": "Ma'am Mitch",
+                "room": "CON103",
+                "day": "Monday",
+                "startTime": "07:30",
+                "endTime": "09:00"
             }
         ],
         "Thursday": [

@@ -13,7 +13,7 @@ import { logout } from "../../services/user_service";
 import type { User } from "../../types/types";
 import Modal from "../../components/Modal";
 import { getColorForSubject } from "./cards/ScheduleCard";
-import { addSched, delSched } from "../../services/class_service";
+import { addSched, delSched, editSched } from "../../services/class_service";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -790,8 +790,7 @@ export default function Dashboard({ user, onLogoutSuccess, isAdmin = true }: Das
 
   /** Update an existing schedule entry — calls updateSchedule() in schedule_service.ts */
   async function editSchedule(entry: AdminScheduleEntry): Promise<void> {
-    // TODO: const res = await scheduleService.updateSchedule(entry.id, entry);
-    // TODO: if (res.status !== 200) { showErrorModal(res.message); return; }
+    await editSched(entry)
     setSchedules(prev => prev.map(x => x.id === entry.id ? entry : x));
   }
 
