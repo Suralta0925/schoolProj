@@ -21,7 +21,7 @@ error_exit() {
 }
 
 # ==================================================
-# Check OS
+# Detect Operating System
 # ==================================================
 
 OS="$(uname)"
@@ -33,7 +33,9 @@ echo "[INFO] Operating System: $OS"
 # ==================================================
 
 echo ""
-echo "Checking required tools..."
+echo "======================================"
+echo " Checking Required Tools"
+echo "======================================"
 
 if command_exists node; then
     echo "[OK] Node.js: $(node -v)"
@@ -49,19 +51,30 @@ fi
 
 if command_exists python3; then
     echo "[OK] Python: $(python3 --version)"
+elif command_exists python; then
+    echo "[OK] Python: $(python --version)"
+    alias python3=python
 else
-    error_exit "Python3 is not installed."
+    error_exit "Python is not installed."
 fi
 
 if command_exists pip3; then
     echo "[OK] pip3 installed"
+elif command_exists pip; then
+    echo "[OK] pip installed"
+    alias pip3=pip
 else
-    error_exit "pip3 is not installed."
+    error_exit "pip is not installed."
 fi
 
 # ==================================================
-# Optional Version Safety Checks
+# Version Safety Checks
 # ==================================================
+
+echo ""
+echo "======================================"
+echo " Checking Version Compatibility"
+echo "======================================"
 
 REQUIRED_NODE_MAJOR=18
 REQUIRED_PYTHON_MAJOR=3
@@ -70,12 +83,14 @@ NODE_MAJOR=$(node -v | cut -d '.' -f1 | tr -d 'v')
 PYTHON_MAJOR=$(python3 --version | awk '{print $2}' | cut -d '.' -f1)
 
 if [ "$NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]; then
-    error_exit "Node.js 18+ required."
+    error_exit "Node.js 18+ required. Current: $(node -v)"
 fi
 
 if [ "$PYTHON_MAJOR" -lt "$REQUIRED_PYTHON_MAJOR" ]; then
     error_exit "Python 3+ required."
 fi
+
+echo "[OK] Version compatibility passed."
 
 # ==================================================
 # BACKEND SETUP
@@ -86,15 +101,17 @@ echo "======================================"
 echo " Setting Up Backend"
 echo "======================================"
 
-if [ ! -d "simple_backend" ]; then
-    error_exit "simple_backend folder not found."
+BACKEND_PATH="simple_backend"
+
+if [ ! -d "$BACKEND_PATH" ]; then
+    error_exit "$BACKEND_PATH folder not found."
 fi
 
-cd simple_backend
+cd "$BACKEND_PATH"
 
-# -----------------------------------
-# Create virtual environment
-# -----------------------------------
+# --------------------------------------------------
+# Create Virtual Environment
+# --------------------------------------------------
 
 if [ ! -d ".venv" ]; then
     echo "[INFO] Creating virtual environment..."
@@ -103,37 +120,60 @@ else
     echo "[OK] Virtual environment already exists."
 fi
 
-# -----------------------------------
-# Activate virtual environment
-# -----------------------------------
+# --------------------------------------------------
+# Detect Correct Python/Pip Paths
+# --------------------------------------------------
 
-source .venv/bin/activate
+if [[ "$OS" == "MINGW"* ]] || [[ "$OS" == "CYGWIN"* ]] || [[ "$OS" == *"NT"* ]]; then
+    PIP_PATH=".venv/Scripts/pip"
+    PYTHON_PATH=".venv/Scripts/python"
+else
+    PIP_PATH=".venv/bin/pip"
+    PYTHON_PATH=".venv/bin/python"
+fi
 
-# -----------------------------------
-# Upgrade pip
-# -----------------------------------
+# --------------------------------------------------
+# Validate Venv Executables
+# --------------------------------------------------
+
+if [ ! -f "$PIP_PATH" ]; then
+    error_exit "Virtual environment pip not found."
+fi
+
+if [ ! -f "$PYTHON_PATH" ]; then
+    error_exit "Virtual environment python not found."
+fi
+
+# --------------------------------------------------
+# Upgrade Pip
+# --------------------------------------------------
 
 echo "[INFO] Upgrading pip..."
-pip install --upgrade pip
 
-# -----------------------------------
-# Install requirements
-# -----------------------------------
+"$PIP_PATH" install --upgrade pip
+
+# --------------------------------------------------
+# Install Backend Dependencies
+# --------------------------------------------------
 
 if [ -f "requirements.txt" ]; then
     echo "[INFO] Installing backend dependencies..."
-    pip install -r requirements.txt
+
+    "$PIP_PATH" install -r requirements.txt
 else
     echo "[WARNING] requirements.txt not found."
     echo "[INFO] Installing FastAPI and Uvicorn manually..."
-    pip install fastapi uvicorn
+
+    "$PIP_PATH" install fastapi uvicorn
 fi
 
-# -----------------------------------
-# Ensure FastAPI + Uvicorn
-# -----------------------------------
+# --------------------------------------------------
+# Ensure FastAPI + Uvicorn Installed
+# --------------------------------------------------
 
-pip install fastapi uvicorn
+echo "[INFO] Ensuring FastAPI and Uvicorn are installed..."
+
+"$PIP_PATH" install fastapi uvicorn
 
 echo "[OK] Backend setup complete."
 
@@ -156,16 +196,26 @@ fi
 
 cd "$FRONTEND_PATH"
 
-# -----------------------------------
+# --------------------------------------------------
+# Verify package.json
+# --------------------------------------------------
+
+if [ ! -f "package.json" ]; then
+    error_exit "package.json not found."
+fi
+
+# --------------------------------------------------
 # Install Node Modules
-# -----------------------------------
+# --------------------------------------------------
 
 if [ -f "package-lock.json" ]; then
     echo "[INFO] Installing frontend dependencies with npm ci..."
+
     npm ci
 else
-    echo "[INFO] package-lock.json not found."
+    echo "[WARNING] package-lock.json not found."
     echo "[INFO] Falling back to npm install..."
+
     npm install
 fi
 
@@ -174,7 +224,7 @@ echo "[OK] Frontend setup complete."
 cd ../..
 
 # ==================================================
-# DONE
+# FINAL SUCCESS
 # ==================================================
 
 echo ""
@@ -183,15 +233,26 @@ echo " Setup Complete Successfully"
 echo "======================================"
 
 echo ""
-echo "Backend venv:"
-echo "  source simple_backend/.venv/bin/activate"
+echo "Backend Commands:"
+echo "--------------------------------------"
+
+if [[ "$OS" == "MINGW"* ]] || [[ "$OS" == "CYGWIN"* ]] || [[ "$OS" == *"NT"* ]]; then
+    echo "cd simple_backend"
+    echo ".venv\\Scripts\\activate"
+    echo "uvicorn main:app --reload"
+else
+    echo "cd simple_backend"
+    echo "source .venv/bin/activate"
+    echo "uvicorn main:app --reload"
+fi
 
 echo ""
-echo "Run backend:"
-echo "  cd simple_backend"
-echo "  uvicorn main:app --reload"
+echo "Frontend Commands:"
+echo "--------------------------------------"
+echo "cd frontend/SchedulerSys"
+echo "npm run dev"
 
 echo ""
-echo "Run frontend:"
-echo "  cd frontend/SchedulerSys"
-echo "  npm run dev"
+echo "======================================"
+echo " Everything is ready 🚀"
+echo "======================================"
